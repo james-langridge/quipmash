@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import './App.css';
 import SelectUsername from './components/SelectUsername';
 import Game from './components/Game';
-import socket from './socket';
+// import socket from './socket';
+import {SocketContext} from './context/socket';
 
 const App = () => {
+  const socket = useContext(SocketContext);
   const [usernameAlreadySelected, setUsernameAlreadySelected] = useState(false);
 
   const onUsernameSelection = username => {

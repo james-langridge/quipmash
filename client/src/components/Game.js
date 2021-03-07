@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
-import socket from "../socket";
+import React, { useState, useEffect, useContext } from "react";
+// import socket from "../socket";
+import {SocketContext} from '../context/socket';
 import User from "./User";
 
 const Game = () => {
+  const socket = useContext(SocketContext);
   const [users, setUsers] = useState([]);
 
   socket.on("connect", () => {
@@ -69,6 +71,10 @@ const Game = () => {
     socket.off("user disconnected");
     socket.off("private message");
   }, []);
+
+  useEffect(() => {
+    console.log('users changed:', users)
+  }, [users]);
 
   return (
     <div>
