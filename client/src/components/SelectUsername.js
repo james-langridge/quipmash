@@ -1,5 +1,4 @@
 import React, { useState, useContext } from "react";
-// import socket from "../socket";
 import {SocketContext} from '../context/socket';
 import styled from 'styled-components';
 

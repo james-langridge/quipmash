@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from "react";
-// import socket from "../socket";
 import {SocketContext} from '../context/socket';
 import User from "./User";
 
@@ -18,7 +17,8 @@ const Game = () => {
   });
 
   socket.on("disconnect", () => {
-    const newState = [...users].forEach((user) => {
+    const newState = [...users];
+    newState.forEach((user) => {
       if (user.self) {
         user.connected = false;
       }
@@ -26,17 +26,22 @@ const Game = () => {
     setUsers(newState);
   });
 
-  const initReactiveProperties = (user) => {
-    user.connected = true;
-  };
-
-  socket.on("users", (users) => {
-    users.forEach((user) => {
-      user.self = user.userID === socket.id;
-      initReactiveProperties(user);
-    });
-    // put the current user first, and sort by username
-    const newState = users.sort((a, b) => {
+  socket.on("users", (newUsers) => {
+      newUsers.forEach((user) => {
+        let usersCopy = [...users];
+          for (let i = 0; i < usersCopy.length; i++) {
+              const existingUser = usersCopy[i];
+              if (existingUser.userID === user.userID) {
+                existingUser.connected = user.connected;
+                setUsers(usersCopy);
+                return;
+              }
+            }
+          user.self = user.userID === socket.userID;
+          const newState = [...users, user];
+          setUsers(newState);
+        });
+    const newState = newUsers.sort((a, b) => {
       if (a.self) return -1;
       if (b.self) return 1;
       if (a.username < b.username) return -1;
@@ -46,7 +51,15 @@ const Game = () => {
   });
 
   socket.on("user connected", (user) => {
-    initReactiveProperties(user);
+    let usersCopy = [...users];
+      for (let i = 0; i < usersCopy.length; i++) {
+        const existingUser = usersCopy[i];
+        if (existingUser.userID === user.userID) {
+          existingUser.connected = true;
+          setUsers(usersCopy);
+          return;
+        }
+      }
     const newState = [...users, user];
     setUsers(newState);
   });
@@ -71,10 +84,6 @@ const Game = () => {
     socket.off("user disconnected");
     socket.off("private message");
   }, []);
-
-  useEffect(() => {
-    console.log('users changed:', users)
-  }, [users]);
 
   return (
     <div>
