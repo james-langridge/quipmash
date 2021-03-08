@@ -1,16 +1,22 @@
 {
   "name": "quiplash-clone",
   "version": "1.0.0",
+  "engines": {
+    "node": "15.x"
+  },
   "description": "",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "concurrently \"node server.js\" \"npm start --prefix client\""
+    "dev": "concurrently \"node server.js\" \"npm start --prefix client\"",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
   },
   "keywords": [],
   "author": "James Langridge",
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
     "socket.io": "^3.1.2"
   },
   "devDependencies": {

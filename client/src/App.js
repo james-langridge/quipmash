@@ -24,9 +24,9 @@ const App = () => {
   });
 
   const onUsernameSelection = username => {
-    setUsernameAlreadySelected(true);
     socket.auth = { username };
     socket.connect();
+    setUsernameAlreadySelected(true);
   }
 
   socket.on("connect_error", (err) => {
@@ -38,6 +38,10 @@ const App = () => {
   useEffect(() => () => {
     socket.off("connect_error");
   }, []);
+
+  useEffect(() => {
+    console.log('usernameAlreadySelected', usernameAlreadySelected);
+  }, [usernameAlreadySelected]);
 
   return (
     <div className="App">

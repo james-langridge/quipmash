@@ -1,9 +1,21 @@
-const httpServer = require("http").createServer();
-const io = require("socket.io")(httpServer, {
+const express = require("express");
+const app = express();
+const cors = require("cors");
+const httpServer = require("http").createServer(app);
+const PORT = process.env.PORT || 5000;
+const options = {
   cors: {
-    origin: "http://localhost:3000",
-  },
-});
+    origin: 'https://floating-reaches-30894.herokuapp.com',
+    methods: ["GET", "POST"]
+  }
+};
+// const options = {
+//   cors: {
+//     origin: 'http://localhost:3000',
+//     methods: ["GET", "POST"]
+//   }
+// };
+const io = require("socket.io")(httpServer, options);
 // above is port client runs on
 
 const crypto = require("crypto");
@@ -11,6 +23,8 @@ const randomId = () => crypto.randomBytes(8).toString("hex");
 
 const { InMemorySessionStore } = require("./sessionStore");
 const sessionStore = new InMemorySessionStore();
+
+app.use(cors());
 
 io.use((socket, next) => {
   const sessionID = socket.handshake.auth.sessionID;
@@ -89,7 +103,13 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('client/build'))
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
+  })
+}
 
 httpServer.listen(PORT, () =>
 console.log(`server listening at http://localhost:${PORT}`)
