@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require("express");
 const app = express();
 const cors = require("cors");
@@ -16,7 +17,6 @@ const options = {
 //   }
 // };
 const io = require("socket.io")(httpServer, options);
-// above is port client runs on
 
 const crypto = require("crypto");
 const randomId = () => crypto.randomBytes(8).toString("hex");
@@ -96,6 +96,10 @@ io.on("connection", (socket) => {
         connected: false,
       });
     }
+  });
+
+  socket.on("start game", () => {
+    socket.emit("start game");
   });
 
   socket.onAny((event, ...args) => {
