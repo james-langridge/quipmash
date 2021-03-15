@@ -39,6 +39,14 @@ export default function(state = initialState, action) {
         ...state,
         users: [...state.users, action.payload]
       };
+    case 'user/updateUser':
+      return {
+        ...state,
+        users: state.users.map(user => user.userID === action.payload.userID ?
+            action.payload :
+            user
+          )
+        };
     case 'user/sortUsers': {
       const users = [...state.users];
       users.sort((a, b) => {

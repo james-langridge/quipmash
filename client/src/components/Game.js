@@ -3,6 +3,8 @@ import {SocketContext} from '../context/socket';
 import User from "./User";
 import { useDispatch, useSelector } from 'react-redux';
 import Button from 'react-bootstrap/Button';
+import {IMAGE_URLS} from './ImageUrls';
+import Prompt from "./Prompt";
 
 const Game = (props) => {
   const isUsernameSelected = useSelector(state => state.user.isUsernameSelected);
@@ -27,25 +29,48 @@ const Game = (props) => {
     });
 
     socket.on("start game", () => {
-      setRound(1);
-      console.log('round', round);
+      const prevRound = round;
+      setRound(prevRound+1);
     });
+
+    socket.on("user updated", (user) => {
+      user.self = user.userID === socket.userID;
+      dispatch({ type: 'user/updateUser', payload: user });
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("disconnect");
+      socket.off("start game");
+      socket.off("user updated");
+    }
   }, []);
 
   useEffect(() => {
     socket.on("users", (newUsers) => {
       let usersCopy = [...users];
-      newUsers.forEach((user) => {
-        for (let i = 0; i < usersCopy.length; i++) {
-          const existingUser = usersCopy[i];
-          if (existingUser.userID === user.userID) {
-            existingUser.connected = user.connected;
+      for (let i = 0; i < newUsers.length; i++) {
+        const newUser = newUsers[i];
+        for (let j = 0; j < usersCopy.length; j++) {
+          const existingUser = usersCopy[j];
+          if (existingUser.userID === newUser.userID) {
+            existingUser.connected = newUser.connected;
             return;
           }
         }
-        user.self = user.userID === socket.userID;
-        usersCopy = [...usersCopy, user];
-      });
+        newUser.game = [];
+        if (i % 2 === 0) {
+          for (let k = i; k < i+2; k++) {
+            newUser.game.push({ 'prompt': IMAGE_URLS[k] });
+          }
+        } else {
+          for (let k = i-1; k < i+1; k++) {
+            newUser.game.push({ 'prompt': IMAGE_URLS[k] });
+          }
+        }
+        newUser.self = newUser.userID === socket.userID;
+        usersCopy = [...usersCopy, newUser];
+      };
       usersCopy.sort((a, b) => {
         if (a.self) return -1;
         if (b.self) return 1;
@@ -55,12 +80,6 @@ const Game = (props) => {
       dispatch({ type: 'user/setUsers', payload: usersCopy });
     });
 
-    return () => {
-      socket.off("users");
-    }
-  }, [users]);
-
-  useEffect(() => {
     socket.on("user connected", (user) => {
       let usersCopy = [...users];
         for (let i = 0; i < usersCopy.length; i++) {
@@ -72,15 +91,22 @@ const Game = (props) => {
           }
         }
       const newState = [...users, user];
+      for (let i = 0; i < newState.length; i++) {
+        const user = newState[i];
+        user.game = [];
+        if (i % 2 === 0) {
+          for (let j = i; j < i+2; j++) {
+            user.game.push({ 'prompt': IMAGE_URLS[j] });
+          }
+        } else {
+          for (let j = i-1; j < i+1; j++) {
+            user.game.push({ 'prompt': IMAGE_URLS[j] });
+          }
+        }
+      }
       dispatch({ type: 'user/setUsers', payload: newState });
     });
 
-    return () => {
-      socket.off("user connected");
-    }
-  }, [users]);
-
-  useEffect(() => {
     socket.on("user disconnected", (id) => {
       const newState = [...users];
       for (let i = 0; i < newState.length; i++) {
@@ -94,6 +120,8 @@ const Game = (props) => {
     });
 
     return () => {
+      socket.off("users");
+      socket.off("user connected");
       socket.off("user disconnected");
     }
   }, [users]);
@@ -103,14 +131,14 @@ const Game = (props) => {
     console.log('clicked button');
   }
 
-  useEffect(() => () => {
-    socket.off("connect");
-    socket.off("disconnect");
-    socket.off("users");
-    socket.off("user connected");
-    socket.off("user disconnected");
-    socket.off("private message");
-  }, []);
+  // get number of players and ids
+  // assign picture prompts to them, save in redux
+  // Prompt component checks socket id and renders correct picture prompt for
+  // each user
+  // and saves their answers into redux
+  // each Prompt component tells server when user has finished answering
+  // server keeps track and broadcasts to all users when all done or time up
+  // view changes to voting component
 
   return (
     <div>
@@ -121,7 +149,7 @@ const Game = (props) => {
         </Button>
       }
       {round === 1 &&
-        <div>playing game</div>
+        <Prompt />
       }
     </div>
   );

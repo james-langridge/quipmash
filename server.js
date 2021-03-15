@@ -99,7 +99,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("start game", () => {
-    socket.emit("start game");
+    io.sockets.emit("start game");
+  });
+
+  socket.on("update user", (user) => {
+    io.sockets.emit("user updated", user);
   });
 
   socket.onAny((event, ...args) => {
