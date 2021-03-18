@@ -1,13 +1,13 @@
-import React, { useContext, useState } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { useSelector } from 'react-redux';
 import {SocketContext} from '../context/socket';
 
 const Prompt = () => {
+  const socket = useContext(SocketContext);
+  const promptsAndAnswers = useSelector(state => state.game.promptsAndAnswers);
   const [caption, setCaption] = useState('');
   const [round, setRound] = useState(0);
-  const users = useSelector(state => state.user.users);
-  const socket = useContext(SocketContext);
-  const index = users.findIndex(user => user.userID === socket.userID);
+  const [userQuestions, setUserQuestions] = useState(promptsAndAnswers.filter(e => e.userID === socket.userID));
 
   const onChange = e => {
     setCaption(e.target.value);
@@ -17,22 +17,24 @@ const Prompt = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    if (round === 2) {
-      return;
-    }
     const prevRound = round;
-    const usersCopy = [...users];
-    const user = usersCopy[index];
-    user.game[round].answer = caption;
-    socket.emit("update user", user);
+    const newState = [...userQuestions];
+    newState[round] = { ...newState[round], answer: caption };
+    setUserQuestions(newState);
     setRound(prevRound+1);
   }
+
+  useEffect(() => {
+    if (round === 2) {
+      socket.emit("answers submitted", userQuestions);
+    }
+  }, [userQuestions, round]);
 
   return (
     <div>
       {round < 2 ? (
         <div>
-          <img src={users[index].game[round].prompt} />
+        <img src={userQuestions[round].question} />
           <form onSubmit={onSubmit}>
             <input
               type="text"
@@ -40,6 +42,7 @@ const Prompt = () => {
               value={caption}
               onChange={onChange}
               className="text-input-field"
+              autoFocus={true}
             />
             <button
               disabled={!isValid()}

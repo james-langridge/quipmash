@@ -28,7 +28,8 @@ const Game = (props) => {
       dispatch({ type: 'users/isUserConnected', payload: false})
     });
 
-    socket.on("start game", () => {
+    socket.on("start game", (questions) => {
+      dispatch({ type: 'game/initPrompts', payload: questions });
       const prevRound = round;
       setRound(prevRound+1);
     });
@@ -58,16 +59,6 @@ const Game = (props) => {
             return;
           }
         }
-        newUser.game = [];
-        if (i % 2 === 0) {
-          for (let k = i; k < i+2; k++) {
-            newUser.game.push({ 'prompt': IMAGE_URLS[k] });
-          }
-        } else {
-          for (let k = i-1; k < i+1; k++) {
-            newUser.game.push({ 'prompt': IMAGE_URLS[k] });
-          }
-        }
         newUser.self = newUser.userID === socket.userID;
         usersCopy = [...usersCopy, newUser];
       };
@@ -91,19 +82,6 @@ const Game = (props) => {
           }
         }
       const newState = [...users, user];
-      for (let i = 0; i < newState.length; i++) {
-        const user = newState[i];
-        user.game = [];
-        if (i % 2 === 0) {
-          for (let j = i; j < i+2; j++) {
-            user.game.push({ 'prompt': IMAGE_URLS[j] });
-          }
-        } else {
-          for (let j = i-1; j < i+1; j++) {
-            user.game.push({ 'prompt': IMAGE_URLS[j] });
-          }
-        }
-      }
       dispatch({ type: 'user/setUsers', payload: newState });
     });
 
@@ -130,15 +108,6 @@ const Game = (props) => {
     socket.emit("start game");
     console.log('clicked button');
   }
-
-  // get number of players and ids
-  // assign picture prompts to them, save in redux
-  // Prompt component checks socket id and renders correct picture prompt for
-  // each user
-  // and saves their answers into redux
-  // each Prompt component tells server when user has finished answering
-  // server keeps track and broadcasts to all users when all done or time up
-  // view changes to voting component
 
   return (
     <div>

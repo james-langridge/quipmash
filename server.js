@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const httpServer = require("http").createServer(app);
+const IMAGE_URLS = require("./config/config").IMAGE_URLS;
 const PORT = process.env.PORT || 5000;
 const options = {
   cors: {
@@ -23,6 +24,9 @@ const randomId = () => crypto.randomBytes(8).toString("hex");
 
 const { InMemorySessionStore } = require("./sessionStore");
 const sessionStore = new InMemorySessionStore();
+
+const { InMemoryGameData } = require("./gameData");
+const gameData = new InMemoryGameData();
 
 app.use(cors());
 
@@ -99,12 +103,39 @@ io.on("connection", (socket) => {
   });
 
   socket.on("start game", () => {
-    io.sockets.emit("start game");
+    const questions = [];
+    const players = sessionStore.findAllSessions();
+    let i = 0;
+    players.forEach((session, i) => {
+      for (j = 0; j < 2; i++, j++) {
+        if (i === players.length) { i = 0 };
+        questions.push({
+          question: IMAGE_URLS[i],
+          userID: session.userID,
+          answer: '',
+          votes: 0
+        });
+      }
+    });
+    io.sockets.emit("start game", questions);
+  });
+
+  socket.on("answers submitted", (answers) => {
+    gameData.saveAnswers(answers);
+    io.sockets.emit("answers", gameData.getAnswers());
   });
 
   socket.on("update user", (user) => {
     io.sockets.emit("user updated", user);
   });
+
+  socket.on("save prompt", (prompt) => {
+    gameData.savePrompt(prompt, [{
+      username: username,
+      answer: '',
+      votes: 0
+    }]);
+  })
 
   socket.onAny((event, ...args) => {
     console.log(event, args);

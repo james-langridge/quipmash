@@ -9,8 +9,8 @@ const Div = styled.div`
 `;
 
 const SelectUsername = (props) => {
-  const isUsernameSelected = useSelector(state => state.user.isUsernameSelected);
   const socket = useContext(SocketContext);
+  const isUsernameSelected = useSelector(state => state.user.isUsernameSelected);
   const [username, setUsername] = useState('');
   const dispatch = useDispatch();
 
@@ -45,6 +45,7 @@ const SelectUsername = (props) => {
           value={username}
           onChange={onChange}
           className="text-input-field"
+          autoFocus={true}
         />
         <button
           disabled={!isValid()}

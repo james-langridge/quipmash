@@ -7,8 +7,9 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "server": "DEBUG=express:* DEBUG_COLORS=true DEBUG_FD=1 nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "concurrently \"node server.js\" \"npm start --prefix client\"",
+    "dev": "concurrently \"npm run server\" \"npm start --prefix client\"",
     "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
   },
   "keywords": [],
@@ -20,6 +21,7 @@
     "socket.io": "^3.1.2"
   },
   "devDependencies": {
-    "concurrently": "^6.0.0"
+    "concurrently": "^6.0.0",
+    "nodemon": "^2.0.7"
   }
 }
