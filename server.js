@@ -28,6 +28,14 @@ const sessionStore = new InMemorySessionStore();
 const { InMemoryGameData } = require("./gameData");
 const gameData = new InMemoryGameData();
 
+const { InMemoryScores } = require("./scores");
+const scores = new InMemoryScores();
+
+let answersSubmitted = 0;
+let gameRound = 0;
+let votesSubmitted = 0;
+let votingRound = 0;
+
 app.use(cors());
 
 io.use((socket, next) => {
@@ -105,6 +113,7 @@ io.on("connection", (socket) => {
   socket.on("start game", () => {
     const questions = [];
     const players = sessionStore.findAllSessions();
+    gameRound++;
     let i = 0;
     players.forEach((session, i) => {
       for (j = 0; j < 2; i++, j++) {
@@ -112,30 +121,55 @@ io.on("connection", (socket) => {
         questions.push({
           question: IMAGE_URLS[i],
           userID: session.userID,
+          username: session.username,
           answer: '',
           votes: 0
         });
       }
     });
-    io.sockets.emit("start game", questions);
+    io.sockets.emit("start game", questions, gameRound);
   });
 
   socket.on("answers submitted", (answers) => {
     gameData.saveAnswers(answers);
-    io.sockets.emit("answers", gameData.getAnswers());
+    answersSubmitted++;
+    if (answersSubmitted === sessionStore.findAllSessions().length) {
+      gameRound++;
+      io.sockets.emit("start voting round", gameData.getAnswers(), gameRound);
+    } else {
+      io.sockets.emit("answers", gameData.getAnswers());
+    }
+  });
+
+  socket.on("submit vote", (answer, question) => {
+    gameData.addVote(answer);
+    votesSubmitted++;
+    if (votesSubmitted === sessionStore.findAllSessions().length) {
+      gameData
+        .getAnswers()
+        .filter(e => e.question === question)
+        .forEach(answer => {
+          scores.saveScore(answer, votesSubmitted);
+        });
+      io.sockets.emit("display results", gameData.getAnswers(), scores.getScores());
+    } else {
+      io.sockets.emit("answers", gameData.getAnswers());
+    }
+  });
+
+  socket.on("next voting round", () => {
+    votingRound++;
+    votesSubmitted = 0;
+    if (votingRound === sessionStore.findAllSessions().length) {
+      io.sockets.emit("endgame", scores.getScores());
+    } else {
+      io.sockets.emit("next voting round", votingRound, scores.getScores());
+    }
   });
 
   socket.on("update user", (user) => {
     io.sockets.emit("user updated", user);
   });
-
-  socket.on("save prompt", (prompt) => {
-    gameData.savePrompt(prompt, [{
-      username: username,
-      answer: '',
-      votes: 0
-    }]);
-  })
 
   socket.onAny((event, ...args) => {
     console.log(event, args);

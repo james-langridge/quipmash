@@ -1,6 +1,6 @@
-export const initPrompts = data => {
+export const setPrompts = data => {
   return {
-    type: 'game/initPrompts',
+    type: 'game/setPrompts',
     payload: data
   }
 }

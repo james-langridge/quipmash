@@ -3,8 +3,8 @@ import {SocketContext} from '../context/socket';
 import User from "./User";
 import { useDispatch, useSelector } from 'react-redux';
 import Button from 'react-bootstrap/Button';
-import {IMAGE_URLS} from './ImageUrls';
 import Prompt from "./Prompt";
+import Voting from "./Voting";
 
 const Game = (props) => {
   const isUsernameSelected = useSelector(state => state.user.isUsernameSelected);
@@ -12,11 +12,19 @@ const Game = (props) => {
   const socket = useContext(SocketContext);
   const users = useSelector(state => state.user.users);
   const dispatch = useDispatch();
-  const [round, setRound] = useState(0);
+  const [gameRound, setGameRound] = useState(0);
 
   if (!isUsernameSelected) {
     dispatch({ type: 'user/isUsernameSelected', payload: false })
     props.history.push('/');
+  }
+
+  const startGame = () => {
+    socket.emit("start game");
+  }
+
+  const nextVotingRound = () => {
+    socket.emit("next voting round");
   }
 
   useEffect(() => {
@@ -28,10 +36,14 @@ const Game = (props) => {
       dispatch({ type: 'users/isUserConnected', payload: false})
     });
 
-    socket.on("start game", (questions) => {
-      dispatch({ type: 'game/initPrompts', payload: questions });
-      const prevRound = round;
-      setRound(prevRound+1);
+    socket.on("start game", (questions, gameRound) => {
+      dispatch({ type: 'game/setPrompts', payload: questions });
+      setGameRound(gameRound);
+    });
+
+    socket.on("start voting round", (answers, gameRound) => {
+      setGameRound(gameRound);
+      dispatch({ type: 'game/setPrompts', payload: answers });
     });
 
     socket.on("user updated", (user) => {
@@ -43,6 +55,7 @@ const Game = (props) => {
       socket.off("connect");
       socket.off("disconnect");
       socket.off("start game");
+      socket.off("start voting round");
       socket.off("user updated");
     }
   }, []);
@@ -104,21 +117,27 @@ const Game = (props) => {
     }
   }, [users]);
 
-  const handleClick = () => {
-    socket.emit("start game");
-    console.log('clicked button');
-  }
-
   return (
     <div>
       {users && users.map(user => <User key={user.userID} user={user} />)}
       {isHost &&
-        <Button variant="primary" onClick={() => handleClick()}>
-        I AM THE HOST - CLICK TO START GAME
-        </Button>
+        <>
+          <Button variant="primary" onClick={() => startGame()}>
+            I AM THE HOST - CLICK TO START GAME
+          </Button>
+          <Button variant="primary" onClick={() => nextVotingRound()}>
+            I AM THE HOST - CLICK TO START NEXT ROUND
+          </Button>
+        </>
       }
-      {round === 1 &&
+      {gameRound === 0 &&
+        <div>Welcome to Eira's birthday game!</div>
+      }
+      {gameRound === 1 &&
         <Prompt />
+      }
+      {gameRound === 2 &&
+        <Voting />
       }
     </div>
   );

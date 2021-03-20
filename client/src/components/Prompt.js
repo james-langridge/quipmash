@@ -6,7 +6,7 @@ const Prompt = () => {
   const socket = useContext(SocketContext);
   const promptsAndAnswers = useSelector(state => state.game.promptsAndAnswers);
   const [caption, setCaption] = useState('');
-  const [round, setRound] = useState(0);
+  const [questionRound, setQuestionRound] = useState(0);
   const [userQuestions, setUserQuestions] = useState(promptsAndAnswers.filter(e => e.userID === socket.userID));
 
   const onChange = e => {
@@ -17,24 +17,23 @@ const Prompt = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    const prevRound = round;
     const newState = [...userQuestions];
-    newState[round] = { ...newState[round], answer: caption };
+    newState[questionRound] = { ...newState[questionRound], answer: caption };
     setUserQuestions(newState);
-    setRound(prevRound+1);
+    setQuestionRound(questionRound+1);
   }
 
   useEffect(() => {
-    if (round === 2) {
+    if (questionRound === 2) {
       socket.emit("answers submitted", userQuestions);
     }
-  }, [userQuestions, round]);
+  }, [userQuestions, questionRound]);
 
   return (
     <div>
-      {round < 2 ? (
+      {questionRound < 2 ? (
         <div>
-        <img src={userQuestions[round].question} />
+        <img src={userQuestions[questionRound].question} />
           <form onSubmit={onSubmit}>
             <input
               type="text"
