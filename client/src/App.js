@@ -5,7 +5,11 @@ import './App.css';
 import SelectUsername from './components/SelectUsername';
 import PrivateRoute from "./components/PrivateRoute";
 import Game from './components/Game';
+import Header from './components/Header';
+import Footer from './components/Footer';
 import {SocketContext} from './context/socket';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Container from 'react-bootstrap/Container';
 
 const App = (props) => {
   const dispatch = useDispatch();
@@ -18,7 +22,7 @@ const App = (props) => {
     socket.connect();
     dispatch({ type: 'user/isUsernameSelected', payload: true })
   }
-  
+
   useEffect(() => {
     socket.on("session", ({ sessionID, userID }) => {
       // attach the session ID to the next reconnection attempts
@@ -42,10 +46,12 @@ const App = (props) => {
 
   return (
     <div className="App">
+      <Header />
       <Switch>
         <Route exact path="/" component={SelectUsername} />
         <PrivateRoute exact path="/game" component={Game} />
       </Switch>
+      <Footer />
     </div>
   );
 }

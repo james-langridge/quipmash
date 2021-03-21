@@ -2,6 +2,11 @@ import React, { useState, useContext } from "react";
 import {SocketContext} from '../context/socket';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 const Div = styled.div`
   width: 300px;
@@ -37,23 +42,33 @@ const SelectUsername = (props) => {
   }
 
   return (
-    <Div>
-      <form onSubmit={onSubmit}>
-        <input
-          type="text"
-          placeholder="Your username..."
-          value={username}
-          onChange={onChange}
-          className="text-input-field"
-          autoFocus={true}
-        />
-        <button
-          disabled={!isValid()}
-        >
-          Send
-        </button>
-      </form>
-    </Div>
+    <Container className="py-5 mt-5 text-center">
+      <Row className="py-lg-5">
+        <Col md={8} lg={6} className="mx-auto">
+          <Form onSubmit={onSubmit}>
+            <Form.Group>
+              <Form.Label htmlFor="username" srOnly>Username</Form.Label>
+              <Form.Control
+                id="username"
+                type="text"
+                placeholder="Your username..."
+                value={username}
+                onChange={onChange}
+                className="text-input-field"
+                autoFocus={true}
+              />
+            </Form.Group>
+            <Button
+              variant="success"
+              type="submit"
+              disabled={!isValid()}
+            >
+              Chalo let's go!
+            </Button>
+          </Form>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 

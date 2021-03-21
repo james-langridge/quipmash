@@ -2,9 +2,15 @@ import React, { useEffect, useContext, useState } from "react";
 import {SocketContext} from '../context/socket';
 import User from "./User";
 import { useDispatch, useSelector } from 'react-redux';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import Prompt from "./Prompt";
+import Users from "./Users";
 import Voting from "./Voting";
+import Rules from "./Rules";
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
 const Game = (props) => {
   const isUsernameSelected = useSelector(state => state.user.isUsernameSelected);
@@ -118,28 +124,43 @@ const Game = (props) => {
   }, [users]);
 
   return (
-    <div>
-      {users && users.map(user => <User key={user.userID} user={user} />)}
+    <Container className="text-center">
       {isHost &&
         <>
-          <Button variant="primary" onClick={() => startGame()}>
-            I AM THE HOST - CLICK TO START GAME
-          </Button>
-          <Button variant="primary" onClick={() => nextVotingRound()}>
-            I AM THE HOST - CLICK TO START NEXT ROUND
-          </Button>
+          <ButtonGroup>
+            <Button
+              variant="outline-primary"
+              onClick={() => startGame()}
+            >
+              START
+            </Button>
+            <Button
+              variant="outline-primary"
+              onClick={() => nextVotingRound()}
+            >
+              ROUND++
+            </Button>
+          </ButtonGroup>
         </>
       }
-      {gameRound === 0 &&
-        <div>Welcome to Eira's birthday game!</div>
-      }
-      {gameRound === 1 &&
-        <Prompt />
-      }
-      {gameRound === 2 &&
-        <Voting />
-      }
-    </div>
+      {(() => {
+        switch (gameRound) {
+          case 0:
+            return (
+              <>
+                <Users users={users} />
+                <Rules />
+              </>
+            );
+          case 1:
+            return <Prompt />;
+          case 2:
+            return <Voting />;
+          default:
+            return null;
+        }
+      })()}
+    </Container>
   );
 }
 
