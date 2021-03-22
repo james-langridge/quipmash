@@ -1,10 +1,7 @@
 import React, { useEffect, useContext, useState } from "react";
 import {SocketContext} from '../context/socket';
-import User from "./User";
 import { useDispatch, useSelector } from 'react-redux';
 import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import Prompt from "./Prompt";
 import Users from "./Users";
@@ -25,8 +22,8 @@ const Game = (props) => {
     props.history.push('/');
   }
 
-  const startGame = () => {
-    socket.emit("start game");
+  const startGame = (restart) => {
+    socket.emit("start game", restart);
   }
 
   const nextVotingRound = () => {
@@ -48,8 +45,8 @@ const Game = (props) => {
     });
 
     socket.on("start voting round", (answers, gameRound) => {
-      setGameRound(gameRound);
       dispatch({ type: 'game/setPrompts', payload: answers });
+      setGameRound(gameRound);
     });
 
     socket.on("user updated", (user) => {
@@ -129,16 +126,22 @@ const Game = (props) => {
         <>
           <ButtonGroup>
             <Button
-              variant="outline-primary"
-              onClick={() => startGame()}
+              variant="success"
+              onClick={() => startGame(false)}
             >
               START
             </Button>
             <Button
-              variant="outline-primary"
+              variant="primary"
               onClick={() => nextVotingRound()}
             >
               ROUND++
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => startGame(true)}
+            >
+              RESTART
             </Button>
           </ButtonGroup>
         </>

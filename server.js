@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const httpServer = require("http").createServer(app);
-const IMAGE_URLS = require("./config/config").IMAGE_URLS;
+const IMAGE_URLS = require("./imageUrls").IMAGE_URLS;
 const PORT = process.env.PORT || 5000;
 const options = {
   cors: {
@@ -31,10 +31,7 @@ const gameData = new InMemoryGameData();
 const { InMemoryScores } = require("./scores");
 const scores = new InMemoryScores();
 
-let answersSubmitted = 0;
-let gameRound = 0;
-let votesSubmitted = 0;
-let votingRound = 0;
+let answersSubmitted, gameRound, votesSubmitted, votingRound;
 
 app.use(cors());
 
@@ -110,13 +107,24 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("start game", () => {
+  socket.on("restart", () => {
+    resetAnswers
+  });
+
+  socket.on("start game", (restart) => {
+    if (restart) {
+      gameData.reset();
+      scores.reset();
+    }
     const questions = [];
     const players = sessionStore.findAllSessions();
-    gameRound++;
+    gameRound = 1;
+    answersSubmitted = 0;
+    votesSubmitted = 0;
+    votingRound = 0;
     let i = 0;
     players.forEach((session, i) => {
-      for (j = 0; j < 2; i++, j++) {
+      for (j = 0; j < 2; j++, i++) {
         if (i === players.length) { i = 0 };
         questions.push({
           question: IMAGE_URLS[i],
@@ -142,7 +150,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("submit vote", (answer, question) => {
-    gameData.addVote(answer);
+    if (answer) {
+      gameData.addVote(answer);
+    }
     votesSubmitted++;
     if (votesSubmitted === sessionStore.findAllSessions().length) {
       gameData

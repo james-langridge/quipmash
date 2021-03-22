@@ -9,7 +9,6 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import {SocketContext} from './context/socket';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Container from 'react-bootstrap/Container';
 
 const App = (props) => {
   const dispatch = useDispatch();

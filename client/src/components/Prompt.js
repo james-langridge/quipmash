@@ -7,11 +7,13 @@ import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Countdown from "./Countdown";
 
 const Prompt = () => {
   const socket = useContext(SocketContext);
   const promptsAndAnswers = useSelector(state => state.game.promptsAndAnswers);
   const [caption, setCaption] = useState('');
+  const [isTimeUp, setIsTimeUp] = useState(false);
   const [questionRound, setQuestionRound] = useState(0);
   const [userQuestions, setUserQuestions] = useState(promptsAndAnswers.filter(e => e.userID === socket.userID));
 
@@ -20,6 +22,18 @@ const Prompt = () => {
   };
 
   const isValid = () => caption.length > 2 ? true : false;
+
+  useEffect(() => {
+    console.log('isTimeUp:', isTimeUp);
+    if (isTimeUp === true) {
+      for (let i = questionRound; i < 2; i++) {
+        const newState = [...userQuestions];
+        newState[questionRound] = { ...newState[questionRound], answer: '' };
+        setUserQuestions(newState);
+        setQuestionRound(questionRound+1);
+      }
+    }
+  }, [isTimeUp, questionRound]);
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -48,7 +62,7 @@ const Prompt = () => {
               />
               <Form onSubmit={onSubmit}>
                 <Form.Group>
-                  <Form.Label htmlFor="caption" srOnly>Caption</Form.Label>
+                  <Form.Label htmlFor="caption">Caption contest {questionRound+1} of 2:</Form.Label>
                   <Form.Control
                     id="caption"
                     type="text"
@@ -66,6 +80,7 @@ const Prompt = () => {
                   Submit
                 </Button>
               </Form>
+              <Countdown functions={[isTimeUp, setIsTimeUp]} time={20} />
             </Col>
           </Row>
       ) : (

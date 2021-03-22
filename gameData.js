@@ -2,6 +2,7 @@
   saveAnswers(answers) {}
   addVote(answer) {}
   getAnswers() {}
+  reset() {}
 }
 
 class InMemoryGameData extends GameData {
@@ -22,6 +23,10 @@ class InMemoryGameData extends GameData {
 
   getAnswers() {
     return this.answers;
+  }
+
+  reset() {
+    this.answers = [];
   }
 }
 

@@ -1,17 +1,11 @@
 import React, { useState, useContext } from "react";
 import {SocketContext} from '../context/socket';
-import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-
-const Div = styled.div`
-  width: 300px;
-  margin: 200px auto 0;
-`;
 
 const SelectUsername = (props) => {
   const socket = useContext(SocketContext);

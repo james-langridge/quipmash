@@ -4,9 +4,8 @@ import {SocketContext} from '../context/socket';
 import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 import Table from 'react-bootstrap/Table'
+import Countdown from "./Countdown";
 
 const Voting = () => {
   const socket = useContext(SocketContext);
@@ -19,12 +18,24 @@ const Voting = () => {
   const questions = promptsAndAnswers.map(({ question }) => question);
   const questionsDeDup = [...new Set(questions)];
   const answers = promptsAndAnswers.filter(e => e.question === questionsDeDup[votingRound]);
+  const [isTimeUp, setIsTimeUp] = useState(false);
 
   const handleClick = e => {
     const answer = e.target.value;
     socket.emit("submit vote", answer, questionsDeDup[votingRound]);
     setStatus('waiting');
   }
+
+  useEffect(() => {
+    console.log('votingRound:', votingRound);
+  }, [votingRound]);
+
+  useEffect(() => {
+    if (isTimeUp === true) {
+      socket.emit("submit vote", null, questionsDeDup[votingRound]);
+      setStatus('waiting');
+    }
+  }, [isTimeUp]);
 
   useEffect(() => {
     socket.on("display results", (answers) => {
@@ -68,24 +79,26 @@ const Voting = () => {
                     />
                     <br />
                     <h2>Vote for your favourite answer:</h2>
-                    {answers.map(item =>
-                      <>
-                      <Button
-                        key={item.userID}
-                        value={item.answer}
-                        variant="outline-primary"
-                        onClick={handleClick}
-                        className="mt-2"
-                        >
-                        {item.answer}
-                      </Button>
-                      <br />
-                      </>
-                    )}
+                    {answers.map(item => {
+                      if (item.answer !== '')
+                        return <>
+                                <Button
+                                  key={item.userID}
+                                  value={item.answer}
+                                  variant="outline-primary"
+                                  onClick={handleClick}
+                                  className="mt-2"
+                                  >
+                                  {item.answer}
+                                </Button>
+                                <br />
+                              </>
+                    })}
+                    <Countdown functions={[isTimeUp, setIsTimeUp]} time={20}/>
                   </>
                 );
               case 'waiting':
-                return <div>Waiting for other votes...</div>;
+                return <p>Waiting for other votes...</p>;
               case 'results':
                 return (
                   <>

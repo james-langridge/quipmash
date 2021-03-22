@@ -1,5 +1,4 @@
 import React from "react";
-import StatusIcon from "./StatusIcon";
 import User from "./User";
 
 const Users = (props) => {

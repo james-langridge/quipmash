@@ -1,6 +1,7 @@
 /* abstract */ class Scores {
   saveScores(answer) {}
   getScores() {}
+  reset() {}
 }
 
 class InMemoryScores extends Scores {
@@ -29,6 +30,10 @@ class InMemoryScores extends Scores {
   getScores() {
     this.scores.sort((a, b) => (a.score < b.score) ? 1 : -1)
     return this.scores;
+  }
+
+  reset() {
+    this.scores = [];
   }
 }
 
