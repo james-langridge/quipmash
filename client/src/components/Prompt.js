@@ -11,11 +11,11 @@ import Countdown from "./Countdown";
 
 const Prompt = () => {
   const socket = useContext(SocketContext);
-  const promptsAndAnswers = useSelector(state => state.game.promptsAndAnswers);
+  const questionsAndAnswers = useSelector(state => state.game.questionsAndAnswers);
   const [caption, setCaption] = useState('');
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [questionRound, setQuestionRound] = useState(0);
-  const [userQuestions, setUserQuestions] = useState(promptsAndAnswers.filter(e => e.userID === socket.userID));
+  const [userQuestions, setUserQuestions] = useState(questionsAndAnswers.filter(e => e.playerID === socket.id));
 
   const onChange = e => {
     setCaption(e.target.value);
@@ -24,7 +24,6 @@ const Prompt = () => {
   const isValid = () => caption.length > 2 ? true : false;
 
   useEffect(() => {
-    console.log('isTimeUp:', isTimeUp);
     if (isTimeUp === true) {
       for (let i = questionRound; i < 2; i++) {
         const newState = [...userQuestions];
@@ -40,6 +39,7 @@ const Prompt = () => {
     const newState = [...userQuestions];
     newState[questionRound] = { ...newState[questionRound], answer: caption };
     setUserQuestions(newState);
+    setCaption('');
     setQuestionRound(questionRound+1);
   }
 

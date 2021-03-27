@@ -1,8 +1,8 @@
 import { combineReducers } from "redux";
-import userReducer from "./userReducers";
+import playerReducer from "./playerReducers";
 import gameReducer from "./gameReducers";
 
 export default combineReducers({
-  user: userReducer,
+  player: playerReducer,
   game: gameReducer
 });

@@ -6,7 +6,7 @@ import { io } from "socket.io-client";
 // prod
 const URL = 'https://floating-reaches-30894.herokuapp.com';
 
-export const socket = io(URL, { autoConnect: false });
+export const socket = io(URL);
 export const SocketContext = React.createContext();
 
 socket.onAny((event, ...args) => {

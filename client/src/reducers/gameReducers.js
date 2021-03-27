@@ -1,5 +1,5 @@
 const initialState = {
-  promptsAndAnswers: {}
+  questionsAndAnswers: {}
 };
 
 export default function(state = initialState, action) {
@@ -7,7 +7,7 @@ export default function(state = initialState, action) {
     case 'game/setPrompts':
       return {
         ...state,
-        promptsAndAnswers: action.payload
+        questionsAndAnswers: action.payload
       };
     default:
       return state;

@@ -14,21 +14,18 @@ const Voting = () => {
   const [totalVotes, setTotalVotes] = useState(0);
   const [votingRound, setVotingRound] = useState(0);
   const [scores, setScores] = useState([]);
-  const promptsAndAnswers = useSelector(state => state.game.promptsAndAnswers);
-  const questions = promptsAndAnswers.map(({ question }) => question);
+  const questionsAndAnswers = useSelector(state => state.game.questionsAndAnswers);
+  const questions = questionsAndAnswers.map(({ question }) => question);
   const questionsDeDup = [...new Set(questions)];
-  const answers = promptsAndAnswers.filter(e => e.question === questionsDeDup[votingRound]);
+  const answers = questionsAndAnswers.filter(e => e.question === questionsDeDup[votingRound]);
   const [isTimeUp, setIsTimeUp] = useState(false);
 
   const handleClick = e => {
+    const question = questionsDeDup[votingRound];
     const answer = e.target.value;
-    socket.emit("submit vote", answer, questionsDeDup[votingRound]);
+    socket.emit("submit vote", question, answer);
     setStatus('waiting');
   }
-
-  useEffect(() => {
-    console.log('votingRound:', votingRound);
-  }, [votingRound]);
 
   useEffect(() => {
     if (isTimeUp === true) {
@@ -38,17 +35,20 @@ const Voting = () => {
   }, [isTimeUp]);
 
   useEffect(() => {
-    socket.on("display results", (answers) => {
-      dispatch({ type: 'game/setPrompts', payload: answers });
-      const totalVotes = answers
+    socket.on("display results", (gameData) => {
+      dispatch({ type: 'game/setPrompts', payload: gameData.questionsAndAnswers });
+      let totalVotes = gameData.questionsAndAnswers
         .filter(e => e.question === questionsDeDup[votingRound])
         .reduce((prev, current) => (prev.votes + current.votes));
+      if (typeof totalVotes === 'object') {
+        totalVotes = totalVotes.votes;
+      }
       setTotalVotes(totalVotes);
       setStatus('results');
     });
 
-    socket.on("next voting round", (votingRound, scores) => {
-      setVotingRound(votingRound);
+    socket.on("next voting round", (gameData, scores) => {
+      setVotingRound(gameData.votingRound);
       setStatus('voting');
     });
 
@@ -83,7 +83,7 @@ const Voting = () => {
                       if (item.answer !== '')
                         return <>
                                 <Button
-                                  key={item.userID}
+                                  key={item.playerID}
                                   value={item.answer}
                                   variant="outline-primary"
                                   onClick={handleClick}
