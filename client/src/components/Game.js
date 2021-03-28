@@ -11,7 +11,7 @@ import Rules from "./Rules";
 
 const Game = (props) => {
   const socket = useContext(SocketContext);
-  const isHost = socket.username === 'foobar';
+  const isHost = socket.username === 'James Technoking of Berlin';
   const isUsernameSelected = useSelector(state => state.player.isUsernameSelected);
   const players = useSelector(state => state.player.players);
   const [gameRound, setGameRound] = useState(0);
@@ -39,11 +39,6 @@ const Game = (props) => {
     socket.on("roomCreated", (key) => {
       setRoomKey(key);
       socket.emit("joinRoom", key);
-    });
-
-    socket.on("leaveRoom", () => {
-      socket.disconnect();
-      window.location.reload(true);
     });
 
     socket.on("start game", (gameData) => {

@@ -43,14 +43,6 @@ const findRoom = (socket) => {
     return roomKey;
   }
 
-const resetRoomInfo = roomInfo => {
-  roomInfo.gameRound = 0;
-  roomInfo.votingRound = 0;
-  roomInfo.votesSubmitted = 0;
-  roomInfo.answersSubmitted = 0;
-  roomInfo.questionsAndAnswers = [];
-}
-
 const codeGenerator = () => {
   let code = "";
   let chars = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789";
@@ -147,21 +139,22 @@ module.exports = (io) => {
     });
 
     socket.on("isKeyValid", function (input) {
-      Object.keys(gameRooms).includes(input)
-        ? socket.emit("keyIsValid", input)
-        : socket.emit("keyNotValid");
+      if (Object.keys(gameRooms).includes(input) && gameRooms[input].gameRound > 0) {
+        socket.emit("pleaseWaitForNextGame")
+      } else if (Object.keys(gameRooms).includes(input)) {
+        socket.emit("keyIsValid", input)
+      } else {
+        socket.emit("keyNotValid")
+      }
     });
 
-    socket.on("getRoomCode", async function (roomKey) {
-      if (roomKey) {
-        socket.to(roomKey).emit("leaveRoom");
+    socket.on("getRoomCode", async function (oldKey) {
+      let newKey = codeGenerator();
+      while (Object.keys(gameRooms).includes(newKey)) {
+        newKey = codeGenerator();
       }
-      let key = codeGenerator();
-      while (Object.keys(gameRooms).includes(key)) {
-        key = codeGenerator();
-      }
-      gameRooms[key] = {
-        roomKey: key,
+      gameRooms[newKey] = {
+        roomKey: newKey,
         players: [],
         numPlayers: 0,
         gameRound: 0,
@@ -171,13 +164,18 @@ module.exports = (io) => {
         questionsAndAnswers: [],
         scores: [],
       };
-      socket.emit("roomCreated", key);
+      if (!oldKey) {
+        socket.emit("roomCreated", newKey);
+      }
+      if (oldKey) {
+        io.in(oldKey).emit("roomCreated", newKey);
+        io.socketsLeave(oldKey);
+      };
     });
 
     socket.on("start game", async (restart) => {
       const roomKey = findRoom(socket);
       const roomInfo = gameRooms[roomKey];
-      resetRoomInfo(roomInfo);
       const players = roomInfo.players;
       roomInfo.gameRound = 1;
       let i = 0;

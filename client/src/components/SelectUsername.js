@@ -13,6 +13,12 @@ const SelectUsername = (props) => {
   const isUsernameSelected = useSelector(state => state.player.isUsernameSelected);
   const [username, setUsername] = useState('');
   const [roomKey, setRoomKey] = useState('');
+  const [errorText, setErrorText] = useState('');
+  const [isIE, setIsIE] = useState(false);
+
+  if (/*@cc_on!@*/false || !!document.documentMode) {
+    setIsIE(true);
+  }
 
   const onChangeUsername = e => {
     setUsername(e.target.value);
@@ -32,7 +38,7 @@ const SelectUsername = (props) => {
 
   useEffect(() => {
     socket.on("keyNotValid", () => {
-      // no-op
+      setErrorText('Game code does not exist. Please try again.');
     });
 
     socket.on("keyIsValid", roomKey => {
@@ -40,17 +46,22 @@ const SelectUsername = (props) => {
       props.history.push('/game');
     });
 
+    socket.on("pleaseWaitForNextGame", () => {
+      setErrorText('Game already started. Please wait for the next game');
+    });
+
     return () => {
       socket.off("keyNotValid");
       socket.off("keyIsValid");
+      socket.off("pleaseWaitForNextGame");
     }
   }, []);
 
-  const isValid = () => username.length > 2 && roomKey.length === 5 ? true : false;
+  const isValid = () => username.length > 2 && roomKey.length === 5 && isIE === false ? true : false;
 
   const onSubmit = (e) => {
     e.preventDefault();
-    if (username === 'foobar' && roomKey === '00000') {
+    if (username === 'James Technoking of Berlin' && roomKey === '00000') {
       connect();
       props.history.push('/game');
     } else {
@@ -63,6 +74,7 @@ const SelectUsername = (props) => {
     <Container className="py-5 mt-5 text-center">
       <Row className="py-lg-5">
         <Col md={8} lg={6} className="mx-auto">
+        {isIE && <p>SOrry, Internet Explorer is not supported. Please use a different browser.</p>}
           <Form onSubmit={onSubmit}>
             <Form.Group>
               <Form.Label htmlFor="roomKey" srOnly>Game Code</Form.Label>
@@ -96,6 +108,7 @@ const SelectUsername = (props) => {
               Chalo let's go!
             </Button>
           </Form>
+          {errorText && <p>{errorText}</p>}
         </Col>
       </Row>
     </Container>
