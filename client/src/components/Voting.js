@@ -29,7 +29,7 @@ const Voting = () => {
 
   useEffect(() => {
     if (isTimeUp === true) {
-      socket.emit("submit vote", null, questionsDeDup[votingRound]);
+      socket.emit("submit vote", questionsDeDup[votingRound], null);
       setStatus('waiting');
     }
   }, [isTimeUp]);

@@ -216,10 +216,10 @@ module.exports = (io) => {
       }
     });
 
-    socket.on("submit vote", async (question, answer) => {
+    socket.on("submit vote", (question, answer) => {
       const roomKey = findRoom(socket);
       const roomInfo = gameRooms[roomKey];
-      if (answer) {
+      if (answer !== null) {
         const index = roomInfo.questionsAndAnswers.findIndex((obj => obj.answer === answer));
         const currentVotes = roomInfo.questionsAndAnswers[index].votes;
         roomInfo.questionsAndAnswers[index].votes = currentVotes + 1;
