@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 // dev
 // const URL = 'http://localhost:5000';
 // prod
-const URL = 'https://floating-reaches-30894.herokuapp.com';
+const URL = 'https://eira-is-one-year-old.herokuapp.com';
 
 export const socket = io(URL);
 export const SocketContext = React.createContext();

@@ -6,7 +6,7 @@ const server = require("http").createServer(app);
 const PORT = process.env.PORT || 5000;
 const options = {
   cors: {
-    origin: 'https://floating-reaches-30894.herokuapp.com',
+    origin: 'https://eira-is-one-year-old.herokuapp.com',
     methods: ["GET", "POST"]
   }
 };
