@@ -1,10 +1,10 @@
 import React from 'react';
 import { io } from "socket.io-client";
 
-// dev
-// const URL = 'http://localhost:5000';
-// prod
-const URL = 'https://eira-is-one-year-old.herokuapp.com';
+const URL = 'http://localhost:5000';
+if (process.env.NODE_ENV === 'production') {
+  URL = process.env.REACT_APP_CORS_ORIGIN;
+}
 
 export const socket = io(URL);
 export const SocketContext = React.createContext();
