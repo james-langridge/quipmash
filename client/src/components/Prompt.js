@@ -7,6 +7,7 @@ import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Alert from 'react-bootstrap/Alert';
 import Countdown from "./Countdown";
 
 const Prompt = () => {
@@ -51,41 +52,50 @@ const Prompt = () => {
 
   return (
     <Container className="py-5 text-center">
+    <Row className="py-lg-5">
+      <Col md={8} lg={6} className="mx-auto">
       {questionRound < 2 ? (
-          <Row className="py-lg-5">
-            <Col md={8} lg={6} className="mx-auto">
-              <Image
-                src={userQuestions[questionRound].question}
-                rounded
-                fluid
-                className="my-2"
+        <>
+          <Image
+            src={userQuestions[questionRound].question}
+            rounded
+            fluid
+            className="my-2"
+          />
+          <Form onSubmit={onSubmit}>
+            <Form.Group>
+              <Form.Label htmlFor="caption">Caption contest {questionRound+1} of 2:</Form.Label>
+              <Form.Control
+                id="caption"
+                type="text"
+                placeholder="Hilarious caption here..."
+                value={caption}
+                onChange={onChange}
+                autoFocus={true}
               />
-              <Form onSubmit={onSubmit}>
-                <Form.Group>
-                  <Form.Label htmlFor="caption">Caption contest {questionRound+1} of 2:</Form.Label>
-                  <Form.Control
-                    id="caption"
-                    type="text"
-                    placeholder="Hilarious caption here..."
-                    value={caption}
-                    onChange={onChange}
-                    autoFocus={true}
-                  />
-                </Form.Group>
-                <Button
-                  variant="primary"
-                  type="submit"
-                  disabled={!isValid()}
-                >
-                  Submit
-                </Button>
-              </Form>
-              <Countdown functions={[isTimeUp, setIsTimeUp]} time={20} />
-            </Col>
-          </Row>
+            </Form.Group>
+            <Button
+              variant="primary"
+              type="submit"
+              disabled={!isValid()}
+            >
+              Submit
+            </Button>
+          </Form>
+          <Countdown functions={[isTimeUp, setIsTimeUp]} time={20} />
+        </>
       ) : (
-        <p>Waiting for other players...</p>
+        <>
+          <Alert variant="success">Waiting for other players...</Alert>
+          <Image
+            src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif"
+            fluid
+            className="my-2"
+          />
+        </>
       )}
+      </Col>
+    </Row>
     </Container>
   );
 }

@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Alert from 'react-bootstrap/Alert';
 import Prompt from "./Prompt";
 import Voting from "./Voting";
 import Rules from "./Rules";
@@ -25,18 +26,25 @@ const Game = (props) => {
     socket.emit("getRoomCode", roomKey);
   }
 
-  const startGame = (restart) => {
-    socket.emit("start game", restart);
+  const startGame = () => {
+    socket.emit("start game", roomKey);
   }
 
   const nextVotingRound = () => {
-    socket.emit("next voting round");
+    socket.emit("next voting round", roomKey);
   }
 
   useEffect(() => {
+    console.log(`New roomKey: ${roomKey}`)
+  }, [roomKey]);
+
+  useEffect(() => {
     socket.on("roomCreated", (key) => {
+      console.log(`Room created: ${key}`);
       setRoomKey(key);
-      socket.emit("joinRoom", key);
+      if (!isHost) {
+        socket.emit("joinRoom", key);
+      }
     });
 
     socket.on("start game", (gameData) => {
@@ -53,7 +61,6 @@ const Game = (props) => {
       socket.off("start game");
       socket.off("start voting round");
       socket.off("roomCreated");
-      socket.off("leaveRoom");
     }
   }, []);
 
@@ -63,14 +70,14 @@ const Game = (props) => {
         <>
           <ButtonGroup>
           <Button
-            variant="success"
+            variant="info"
             onClick={() => createGame()}
           >
             Create game
           </Button>
             <Button
               variant="success"
-              onClick={() => startGame(false)}
+              onClick={() => startGame()}
             >
               START
             </Button>
@@ -80,17 +87,16 @@ const Game = (props) => {
             >
               ROUND++
             </Button>
-            <Button
-              variant="danger"
-              onClick={() => startGame(true)}
-            >
-              RESTART
-            </Button>
           </ButtonGroup>
-          <p>Room key: {roomKey}</p>
+          <Alert
+            variant="success"
+            className="my-2"
+          >
+            <Alert.Heading>Room key: {roomKey}</Alert.Heading>
+          </Alert>
         </>
       }
-      {(() => {
+      {!isHost &&(() => {
         switch (gameRound) {
           case 0:
             return (

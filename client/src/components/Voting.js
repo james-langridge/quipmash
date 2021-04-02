@@ -2,8 +2,11 @@ import React, { useEffect, useContext, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import {SocketContext} from '../context/socket';
 import Image from 'react-bootstrap/Image';
+import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import Table from 'react-bootstrap/Table'
 import Countdown from "./Countdown";
 
@@ -66,6 +69,8 @@ const Voting = () => {
 
   return (
     <Container className="py-5 text-center">
+    <Row className="py-lg-5">
+      <Col md={8} lg={6} className="mx-auto">
           {(() => {
             switch (status) {
               case 'voting':
@@ -98,7 +103,16 @@ const Voting = () => {
                   </>
                 );
               case 'waiting':
-                return <p>Waiting for other votes...</p>;
+                return (
+                  <>
+                    <Alert variant="success">Waiting for other players...</Alert>
+                    <Image
+                      src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif"
+                      fluid
+                      className="my-2"
+                    />
+                  </>
+                )
               case 'results':
                 return (
                   <>
@@ -140,6 +154,8 @@ const Voting = () => {
                 return null;
             }
           })()}
+          </Col>
+        </Row>
     </Container>
   );
 }

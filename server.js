@@ -9,11 +9,11 @@ const options = {
     methods: ["GET", "POST"]
   }
 };
-const io = require("socket.io")(server, options);
+const io = require("socket.io")(server);
 const PORT = process.env.PORT || 5000;
 
 if (process.env.NODE_ENV === 'production') {
-  options.cors.origin = process.env.REACT_APP_CORS_ORIGIN;
+  // options.cors.origin = process.env.REACT_APP_CORS_ORIGIN;
   app.use(express.static('client/build'))
 
   app.get('*', (req, res) => {

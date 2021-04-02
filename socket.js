@@ -6,6 +6,7 @@ const gameRooms = {
     // votingRound: 0,
     // votesSubmitted: 0,
     // answersSubmitted: 0,
+    // currentQuestion: ''
     // numPlayers: 0,
     // players: [
       //   {
@@ -53,9 +54,9 @@ const codeGenerator = () => {
   return code;
 }
 
-const saveScore = (answer, totalVotes, roomInfo) => {
+const saveScore = (answer, roomInfo) => {
   const {username, votes} = answer;
-  const score = Math.floor(votes / totalVotes * 1000);
+  const score = Math.floor(votes / roomInfo.votesSubmitted * 1000);
   const newScore = {
     username: username,
     score: score
@@ -93,51 +94,6 @@ module.exports = (io) => {
   io.on("connection", (socket) => {
     console.log(`A socket connection to the server has been made: ${socket.id}`);
 
-    socket.on("joinRoom", (roomKey) => {
-      socket.join(roomKey);
-      const roomInfo = gameRooms[roomKey];
-      console.log("roomInfo", roomInfo);
-      roomInfo.players.push({
-        username: socket.username,
-        playerID: socket.id,
-      });
-      roomInfo.numPlayers = roomInfo.players.length;
-      socket.emit("setState", roomInfo);
-      socket.to(roomKey).emit("currentPlayers", {
-        players: roomInfo.players,
-        numPlayers: roomInfo.numPlayers,
-      });
-    });
-
-    socket.on("disconnect", function () {
-      const roomKey = findRoom(socket);
-      const roomInfo = gameRooms[roomKey];
-
-      if (roomInfo) {
-        console.log("user disconnected: ", socket.id);
-        const foundIndex = roomInfo.players.findIndex(x => x.playerID === socket.id);
-        roomInfo.players.splice(foundIndex, 1);
-        roomInfo.numPlayers = roomInfo.players.length;
-        if (roomInfo.gameRound === 1 && roomInfo.answersSubmitted === roomInfo.numPlayers) {
-          roomInfo.gameRound++;
-          io.to(roomKey).emit("start voting round", roomInfo);
-        }
-        if (roomInfo.gameRound === 2 && roomInfo.votesSubmitted === roomInfo.numPlayers) {
-          roomInfo
-            .questionsAndAnswers
-            .filter(e => e.question === question)
-            .forEach(answer => {
-              saveScore(answer, roomInfo.votesSubmitted, roomInfo);
-            });
-          io.to(roomKey).emit("display results", roomInfo);
-        }
-        io.to(roomKey).emit("disconnected", {
-          playerID: socket.id,
-          numPlayers: roomInfo.numPlayers,
-        });
-      }
-    });
-
     socket.on("isKeyValid", function (input) {
       if (input === process.env.REACT_APP_HOST_CODE) {
         socket.emit("isHost")
@@ -151,10 +107,12 @@ module.exports = (io) => {
     });
 
     socket.on("getRoomCode", async function (oldKey) {
+      console.log('oldKey: ', oldKey);
       let newKey = codeGenerator();
       while (Object.keys(gameRooms).includes(newKey)) {
         newKey = codeGenerator();
       }
+      console.log('newKey: ', newKey);
       gameRooms[newKey] = {
         roomKey: newKey,
         players: [],
@@ -164,47 +122,84 @@ module.exports = (io) => {
         votesSubmitted: 0,
         answersSubmitted: 0,
         questionsAndAnswers: [],
+        currentQuestion: '',
         scores: [],
       };
+      // this happens on first game only
       if (!oldKey) {
+        // sending to the client (game host)
         socket.emit("roomCreated", newKey);
       }
+      // this happens with all other games
       if (oldKey) {
-        io.in(oldKey).emit("roomCreated", newKey);
+        // sending to the client (game host)
+        socket.emit("roomCreated", newKey);
+        // sending to all clients in "oldKey" room except sender
+        socket.to(oldKey).emit("roomCreated", newKey);
+        // make all Socket instances leave the "oldKey" room
         io.socketsLeave(oldKey);
+        delete gameRooms.oldKey;
       };
+      console.log('gameRooms: ', gameRooms);
     });
 
-    socket.on("start game", async (restart) => {
-      const roomKey = findRoom(socket);
+    socket.on("joinRoom", (roomKey) => {
+      socket.join(roomKey);
       const roomInfo = gameRooms[roomKey];
-      const players = roomInfo.players;
-      roomInfo.gameRound = 1;
-      let i = 0;
-      let questionID = 0;
-      roomInfo.players.forEach((player, i) => {
-        for (j = 0; j < 2; j++, i++) {
-          if (i === players.length) {
-            i = 0
-          };
-          roomInfo.questionsAndAnswers.push({
-            questionID: questionID++,
-            question: questions[i],
-            playerID: player.playerID,
-            username: player.username,
-            answer: '',
-            votes: 0
-          });
-        }
+      console.log("roomInfo", roomInfo);
+      roomInfo.players.push({
+        username: socket.username,
+        playerID: socket.id,
       });
-      // remove questions that no longer spark joy
-      questions.splice(0, players.length);
-      io.sockets.emit("start game", roomInfo);
+      roomInfo.numPlayers = roomInfo.players.length;
+      socket.emit("setState", roomInfo);
+      // sending to all clients in "roomKey" room except sender
+      socket.to(roomKey).emit("currentPlayers", {
+        players: roomInfo.players,
+        numPlayers: roomInfo.numPlayers,
+      });
+    });
+
+    socket.on("start game", async (roomKey) => {
+      console.log('gameRooms: ', gameRooms);
+      const roomInfo = gameRooms[roomKey];
+      console.log('roomInfo: ', roomInfo);
+      if (roomInfo) {
+        const players = roomInfo.players;
+        roomInfo.gameRound = 1;
+        let i = 0;
+        let questionID = 0;
+        roomInfo.players.forEach((player, i) => {
+          for (j = 0; j < 2; j++, i++) {
+            if (i === players.length) {
+              i = 0
+            };
+            roomInfo.questionsAndAnswers.push({
+              questionID: questionID++,
+              question: questions[i],
+              playerID: player.playerID,
+              username: player.username,
+              answer: '',
+              votes: 0
+            });
+          }
+        });
+        // remove questions that no longer spark joy
+        questions.splice(0, players.length);
+        // sending to all clients in "roomKey" room, including sender
+        io.in(roomKey).emit("start game", roomInfo);
+      } else {
+        console.log('roominfo is undefined');
+      }
     });
 
     socket.on("answers submitted", (answers) => {
       const roomKey = findRoom(socket);
+      console.log('socket.id:', socket.id);
+      console.log('roomKey: ', roomKey);
+      console.log('gameRooms: ', gameRooms);
       const roomInfo = gameRooms[roomKey];
+      console.log('roomInfo: ', roomInfo);
       answers.forEach(answer => {
         const foundIndex = roomInfo.questionsAndAnswers.findIndex(x => x.questionID === answer.questionID);
         roomInfo.questionsAndAnswers[foundIndex] = answer;
@@ -212,43 +207,92 @@ module.exports = (io) => {
       roomInfo.answersSubmitted++;
       if (roomInfo.answersSubmitted === roomInfo.numPlayers) {
         roomInfo.gameRound++;
-        io.sockets.emit("start voting round", roomInfo);
+        // sending to all clients in "roomKey" room, including sender
+        io.in(roomKey).emit("start voting round", roomInfo);
       } else {
-        io.sockets.emit("answers", roomInfo);
+        // sending to all clients in "roomKey" room, including sender
+        io.in(roomKey).emit("answers", roomInfo);
       }
     });
 
     socket.on("submit vote", (question, answer) => {
       const roomKey = findRoom(socket);
+      console.log('socket.id:', socket.id);
+      console.log('roomKey: ', roomKey);
+      console.log('gameRooms: ', gameRooms);
       const roomInfo = gameRooms[roomKey];
-      if (answer !== null) {
-        const index = roomInfo.questionsAndAnswers.findIndex((obj => obj.answer === answer));
-        const currentVotes = roomInfo.questionsAndAnswers[index].votes;
-        roomInfo.questionsAndAnswers[index].votes = currentVotes + 1;
-      }
-      roomInfo.votesSubmitted++;
-      if (roomInfo.votesSubmitted === roomInfo.numPlayers) {
-        roomInfo
-          .questionsAndAnswers
-          .filter(e => e.question === question)
-          .forEach(answer => {
-            saveScore(answer, roomInfo.votesSubmitted, roomInfo);
-          });
-        io.sockets.emit("display results", roomInfo, getScores(roomInfo));
+      console.log('roomInfo: ', roomInfo);
+      if (roomInfo) {
+        roomInfo.currentQuestion = question;
+        if (answer !== null) {
+          const index = roomInfo.questionsAndAnswers.findIndex((obj => obj.answer === answer));
+          const currentVotes = roomInfo.questionsAndAnswers[index].votes;
+          roomInfo.questionsAndAnswers[index].votes = currentVotes + 1;
+        }
+        roomInfo.votesSubmitted++;
+        if (roomInfo.votesSubmitted === roomInfo.numPlayers) {
+          roomInfo
+            .questionsAndAnswers
+            .filter(e => e.question === question)
+            .forEach(answer => {
+              saveScore(answer, roomInfo);
+            });
+            // sending to all clients in "roomKey" room, including sender
+          io.in(roomKey).emit("display results", roomInfo, getScores(roomInfo));
+        } else {
+          // sending to all clients in "roomKey" room, including sender
+          io.in(roomKey).emit("answers", roomInfo);
+        }
       } else {
-        io.sockets.emit("answers", roomInfo);
+        console.log('roomInfo is undefined');
       }
     });
 
-    socket.on("next voting round", () => {
+    socket.on("next voting round", (roomKey) => {
+      console.log('gameRooms: ', gameRooms);
+      const roomInfo = gameRooms[roomKey];
+      console.log('roomInfo: ', roomInfo);
+      if (roomInfo) {
+        roomInfo.votingRound++;
+        roomInfo.votesSubmitted = 0;
+        if (roomInfo.votingRound === roomInfo.answersSubmitted) {
+          // sending to all clients in "roomKey" room, including sender
+          io.in(roomKey).emit("endgame", getScores(roomInfo));
+        } else {
+          // sending to all clients in "roomKey" room, including sender
+          io.in(roomKey).emit("next voting round", roomInfo, getScores(roomInfo));
+        }
+      }
+    });
+
+    socket.on("disconnect", function () {
       const roomKey = findRoom(socket);
       const roomInfo = gameRooms[roomKey];
-      roomInfo.votingRound++;
-      roomInfo.votesSubmitted = 0;
-      if (roomInfo.votingRound === roomInfo.answersSubmitted) {
-        io.sockets.emit("endgame", getScores(roomInfo));
-      } else {
-        io.sockets.emit("next voting round", roomInfo, getScores(roomInfo));
+
+      if (roomInfo) {
+        console.log("user disconnected: ", socket.id);
+        const foundIndex = roomInfo.players.findIndex(x => x.playerID === socket.id);
+        roomInfo.players.splice(foundIndex, 1);
+        roomInfo.numPlayers = roomInfo.players.length;
+        if (roomInfo.gameRound === 1 && roomInfo.answersSubmitted === roomInfo.numPlayers) {
+          roomInfo.gameRound++;
+          // sending to all clients in "roomKey" room, including sender
+          io.in(roomKey).emit("start voting round", roomInfo);
+        } else if (roomInfo.gameRound === 2 && roomInfo.votesSubmitted === roomInfo.numPlayers) {
+          roomInfo
+            .questionsAndAnswers
+            .filter(e => e.question === roomInfo.currentQuestion)
+            .forEach(answer => {
+              saveScore(answer, roomInfo);
+            });
+            // sending to all clients in "roomKey" room, including sender
+          io.in(roomKey).emit("display results", roomInfo);
+        }
+        // sending to all clients in "roomKey" room, including sender
+        io.in(roomKey).emit("disconnected", {
+          playerID: socket.id,
+          numPlayers: roomInfo.numPlayers,
+        });
       }
     });
 
