@@ -1,13 +1,13 @@
 const initialState = {
-  questionsAndAnswers: {}
+  data: {}
 };
 
 export default function(state = initialState, action) {
   switch (action.type) {
-    case 'game/setPrompts':
+    case 'game/setData':
       return {
         ...state,
-        questionsAndAnswers: action.payload
+        data: action.payload
       };
     default:
       return state;

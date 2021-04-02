@@ -1,6 +1,6 @@
-export const setPrompts = data => {
+export const setData = data => {
   return {
-    type: 'game/setPrompts',
+    type: 'game/setData',
     payload: data
   }
 }

@@ -11,7 +11,7 @@ import Countdown from "./Countdown";
 
 const Prompt = () => {
   const socket = useContext(SocketContext);
-  const questionsAndAnswers = useSelector(state => state.game.questionsAndAnswers);
+  const questionsAndAnswers = useSelector(state => state.game.data.questionsAndAnswers);
   const [caption, setCaption] = useState('');
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [questionRound, setQuestionRound] = useState(0);

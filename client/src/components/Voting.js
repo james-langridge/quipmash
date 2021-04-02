@@ -14,7 +14,7 @@ const Voting = () => {
   const [totalVotes, setTotalVotes] = useState(0);
   const [votingRound, setVotingRound] = useState(0);
   const [scores, setScores] = useState([]);
-  const questionsAndAnswers = useSelector(state => state.game.questionsAndAnswers);
+  const questionsAndAnswers = useSelector(state => state.game.data.questionsAndAnswers);
   const questions = questionsAndAnswers.map(({ question }) => question);
   const questionsDeDup = [...new Set(questions)];
   const answers = questionsAndAnswers.filter(e => e.question === questionsDeDup[votingRound]);
@@ -36,7 +36,7 @@ const Voting = () => {
 
   useEffect(() => {
     socket.on("display results", (gameData) => {
-      dispatch({ type: 'game/setPrompts', payload: gameData.questionsAndAnswers });
+      dispatch({ type: 'game/setData', payload: gameData });
       let totalVotes = gameData.questionsAndAnswers
         .filter(e => e.question === questionsDeDup[votingRound])
         .reduce((prev, current) => (prev.votes + current.votes));

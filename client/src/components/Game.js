@@ -5,7 +5,6 @@ import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Prompt from "./Prompt";
-import Players from "./Players";
 import Voting from "./Voting";
 import Rules from "./Rules";
 
@@ -13,7 +12,6 @@ const Game = (props) => {
   const socket = useContext(SocketContext);
   const isHost = useSelector(state => state.player.isHost);
   const isUsernameSelected = useSelector(state => state.player.isUsernameSelected);
-  const players = useSelector(state => state.player.players);
   const [gameRound, setGameRound] = useState(0);
   const [roomKey, setRoomKey] = useState('');
   const dispatch = useDispatch();
@@ -42,12 +40,12 @@ const Game = (props) => {
     });
 
     socket.on("start game", (gameData) => {
-      dispatch({ type: 'game/setPrompts', payload: gameData.questionsAndAnswers });
+      dispatch({ type: 'game/setData', payload: gameData });
       setGameRound(gameData.gameRound);
     });
 
     socket.on("start voting round", (gameData) => {
-      dispatch({ type: 'game/setPrompts', payload: gameData.questionsAndAnswers });
+      dispatch({ type: 'game/setData', payload: gameData });
       setGameRound(gameData.gameRound);
     });
 
