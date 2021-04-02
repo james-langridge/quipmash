@@ -139,7 +139,9 @@ module.exports = (io) => {
     });
 
     socket.on("isKeyValid", function (input) {
-      if (Object.keys(gameRooms).includes(input) && gameRooms[input].gameRound > 0) {
+      if (input === process.env.REACT_APP_HOST_CODE) {
+        socket.emit("isHost")
+      } else if (Object.keys(gameRooms).includes(input) && gameRooms[input].gameRound > 0) {
         socket.emit("pleaseWaitForNextGame")
       } else if (Object.keys(gameRooms).includes(input)) {
         socket.emit("keyIsValid", input)
@@ -248,10 +250,6 @@ module.exports = (io) => {
       } else {
         io.sockets.emit("next voting round", roomInfo, getScores(roomInfo));
       }
-    });
-
-    socket.on("update player", (player) => {
-      io.sockets.emit("player updated", player);
     });
 
     socket.onAny((event, ...args) => {

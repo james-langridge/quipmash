@@ -5,36 +5,9 @@ export const isUsernameSelected = bool => {
   }
 }
 
-export const setPlayers = players => {
+export const isHost = bool => {
   return {
-    type: 'player/setPlayers',
-    payload: players
-  }
-}
-
-export const isPlayerConnected = bool => {
-  return {
-    type: 'player/isPlayerConnected',
+    type: 'player/isHost',
     payload: bool
-  }
-}
-
-export const addPlayer = player => {
-  return {
-    type: 'player/addPlayer',
-    payload: player
-  }
-}
-
-export const sortPlayers = () => {
-  return {
-    type: 'player/sortPlayers'
-  }
-}
-
-export const updatePlayer = player => {
-  return {
-    type: 'player/updatePlayer',
-    payload: player
   }
 }

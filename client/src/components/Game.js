@@ -11,7 +11,7 @@ import Rules from "./Rules";
 
 const Game = (props) => {
   const socket = useContext(SocketContext);
-  const isHost = socket.username === 'James Technoking of Berlin';
+  const isHost = useSelector(state => state.player.isHost);
   const isUsernameSelected = useSelector(state => state.player.isUsernameSelected);
   const players = useSelector(state => state.player.players);
   const [gameRound, setGameRound] = useState(0);
@@ -97,7 +97,6 @@ const Game = (props) => {
           case 0:
             return (
               <>
-                <Players players={players} />
                 <Rules />
               </>
             );

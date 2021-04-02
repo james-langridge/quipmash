@@ -46,6 +46,11 @@ const SelectUsername = (props) => {
       props.history.push('/game');
     });
 
+    socket.on("isHost", roomKey => {
+      dispatch({ type: 'player/isHost', payload: true });
+      props.history.push('/game');
+    });
+
     socket.on("pleaseWaitForNextGame", () => {
       setErrorText('Game already started. Please wait for the next game');
     });
@@ -61,13 +66,8 @@ const SelectUsername = (props) => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    if (username === 'James Technoking of Berlin' && roomKey === '00000') {
-      connect();
-      props.history.push('/game');
-    } else {
-      connect();
-      socket.emit("isKeyValid", roomKey);
-    }
+    connect();
+    socket.emit("isKeyValid", roomKey);
   };
 
   return (
