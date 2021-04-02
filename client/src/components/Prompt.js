@@ -80,7 +80,7 @@ const Prompt = () => {
                   Submit
                 </Button>
               </Form>
-              <Countdown functions={[isTimeUp, setIsTimeUp]} time={90} />
+              <Countdown functions={[isTimeUp, setIsTimeUp]} time={20} />
             </Col>
           </Row>
       ) : (

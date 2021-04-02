@@ -27,10 +27,7 @@ const Countdown = (props) => {
 
   return (
     <h5 className="my-2">
-      <Badge
-        pill
-        variant="danger"
-      >
+      <Badge pill variant="danger">
         {timer}
       </Badge>
       seconds left!
