@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useContext } from "react";
-import {SocketContext} from '../context/socket';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState, useContext, useEffect } from "react";
+import SocketContext from '../socketContext/context';
+import { socket } from '../sockets';
+import { joinRoom, isKeyValid } from '../sockets/events';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
@@ -8,12 +9,9 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 const SelectUsername = (props) => {
-  const socket = useContext(SocketContext);
-  const dispatch = useDispatch();
-  const isUsernameSelected = useSelector(state => state.player.isUsernameSelected);
+  const { error, isUsernameSelected } = useContext(SocketContext);
   const [username, setUsername] = useState('');
   const [roomKey, setRoomKey] = useState('');
-  const [errorText, setErrorText] = useState('');
   const [isIE, setIsIE] = useState(false);
 
   if (/*@cc_on!@*/false || !!document.documentMode) {
@@ -33,48 +31,27 @@ const SelectUsername = (props) => {
     socket.username = username;
     console.log(`Connecting new user ${username} to server...`);
     socket.connect();
-    dispatch({ type: 'player/isUsernameSelected', payload: true });
   }
 
   useEffect(() => {
-    socket.on("keyNotValid", () => {
-      setErrorText('Game code does not exist. Please try again.');
-    });
-
-    socket.on("keyIsValid", roomKey => {
-      socket.emit("joinRoom", roomKey);
+    if (isUsernameSelected) {
       props.history.push('/game');
-    });
-
-    socket.on("isHost", roomKey => {
-      dispatch({ type: 'player/isHost', payload: true });
-      props.history.push('/game');
-    });
-
-    socket.on("pleaseWaitForNextGame", () => {
-      setErrorText('Game already started. Please wait for the next game');
-    });
-
-    return () => {
-      socket.off("keyNotValid");
-      socket.off("keyIsValid");
-      socket.off("pleaseWaitForNextGame");
     }
-  }, []);
+  }, [isUsernameSelected]);
 
   const isValid = () => username.length > 2 && roomKey.length === 5 && isIE === false ? true : false;
 
   const onSubmit = (e) => {
     e.preventDefault();
     connect();
-    socket.emit("isKeyValid", roomKey);
+    isKeyValid(roomKey);
   };
 
   return (
     <Container className="py-5 mt-5 text-center">
       <Row className="py-lg-5">
         <Col md={8} lg={6} className="mx-auto">
-        {isIE && <p>SOrry, Internet Explorer is not supported. Please use a different browser.</p>}
+        {isIE && <p>Sorry, Internet Explorer is not supported. Please use a different browser.</p>}
           <Form onSubmit={onSubmit}>
             <Form.Group>
               <Form.Label htmlFor="roomKey" srOnly>Game Code</Form.Label>
@@ -108,7 +85,7 @@ const SelectUsername = (props) => {
               Chalo let's go!
             </Button>
           </Form>
-          {errorText && <p>{errorText}</p>}
+          {error && <p>{error}</p>}
         </Col>
       </Row>
     </Container>

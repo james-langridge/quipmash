@@ -1,18 +1,18 @@
 import React, { useEffect, useContext, useState } from "react";
-import { useSelector } from 'react-redux';
-import {SocketContext} from '../context/socket';
+import SocketContext from '../socketContext/context';
+import { socket } from '../sockets';
+import { submitAnswers } from '../sockets/events';
 import Image from 'react-bootstrap/Image';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Alert from 'react-bootstrap/Alert';
 import Countdown from "./Countdown";
+import Waiting from "./Waiting";
 
 const Prompt = () => {
-  const socket = useContext(SocketContext);
-  const questionsAndAnswers = useSelector(state => state.game.data.questionsAndAnswers);
+  const { questionsAndAnswers } = useContext(SocketContext);
   const [caption, setCaption] = useState('');
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [questionRound, setQuestionRound] = useState(0);
@@ -46,56 +46,47 @@ const Prompt = () => {
 
   useEffect(() => {
     if (questionRound === 2) {
-      socket.emit("answers submitted", userQuestions);
+      submitAnswers(userQuestions);
     }
   }, [userQuestions, questionRound]);
 
   return (
     <Container className="py-5 text-center">
-    <Row className="py-lg-5">
-      <Col md={8} lg={6} className="mx-auto">
-      {questionRound < 2 ? (
-        <>
-          <Image
-            src={userQuestions[questionRound].question}
-            rounded
-            fluid
-            className="my-2"
-          />
-          <Form onSubmit={onSubmit}>
-            <Form.Group>
-              <Form.Label htmlFor="caption">Caption contest {questionRound+1} of 2:</Form.Label>
-              <Form.Control
-                id="caption"
-                type="text"
-                placeholder="Hilarious caption here..."
-                value={caption}
-                onChange={onChange}
-                autoFocus={true}
+      <Row className="py-lg-5">
+        <Col md={8} lg={6} className="mx-auto">
+          {questionRound < 2 ? (
+            <>
+              <Image
+                src={userQuestions[questionRound].question}
+                rounded
+                fluid
+                className="my-2"
               />
-            </Form.Group>
-            <Button
-              variant="primary"
-              type="submit"
-              disabled={!isValid()}
-            >
-              Submit
-            </Button>
-          </Form>
-          <Countdown functions={[isTimeUp, setIsTimeUp]} time={20} />
-        </>
-      ) : (
-        <>
-          <Alert variant="success">Waiting for other players...</Alert>
-          <Image
-            src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif"
-            fluid
-            className="my-2"
-          />
-        </>
-      )}
-      </Col>
-    </Row>
+              <Form onSubmit={onSubmit}>
+                <Form.Group>
+                  <Form.Label htmlFor="caption">Caption contest {questionRound+1} of 2:</Form.Label>
+                  <Form.Control
+                    id="caption"
+                    type="text"
+                    placeholder="Hilarious caption here..."
+                    value={caption}
+                    onChange={onChange}
+                    autoFocus={true}
+                  />
+                </Form.Group>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  disabled={!isValid()}
+                >
+                  Submit
+                </Button>
+              </Form>
+              <Countdown functions={[isTimeUp, setIsTimeUp]} time={20} />
+            </>
+          ) : ( <Waiting /> )}
+        </Col>
+      </Row>
     </Container>
   );
 }
