@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import SocketContext from '../socketContext/context';
-import { submitVote } from '../sockets/events';
+import { submitVote } from '../sockets/emit';
 import Button from 'react-bootstrap/Button';
 import Image from 'react-bootstrap/Image';
 import Countdown from "./Countdown";

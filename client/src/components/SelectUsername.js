@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import SocketContext from '../socketContext/context';
 import { socket } from '../sockets';
-import { joinRoom, isKeyValid } from '../sockets/events';
+import { joinRoom, isKeyValid } from '../sockets/emit';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';

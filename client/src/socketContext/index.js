@@ -18,7 +18,7 @@ const SocketProvider = (props) => {
 
   useEffect(() => {
     initSockets({ setState });
-  }, [initSockets]);
+  }, []);
 
   return (
     <SocketContext.Provider value={ state }>

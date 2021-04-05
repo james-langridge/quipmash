@@ -1,7 +1,7 @@
 import React, { useEffect, useContext, useState } from "react";
 import SocketContext from '../socketContext/context';
 import { socket } from '../sockets';
-import { submitAnswers } from '../sockets/events';
+import { submitAnswers } from '../sockets/emit';
 import Image from 'react-bootstrap/Image';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';

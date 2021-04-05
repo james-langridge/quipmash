@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import SocketContext from '../socketContext/context';
-import { createGame, startGame, nextVotingRound } from '../sockets/events';
+import { createGame, startGame, nextVotingRound } from '../sockets/emit';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Alert from 'react-bootstrap/Alert';

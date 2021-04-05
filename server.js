@@ -16,4 +16,4 @@ if (process.env.NODE_ENV === 'production') {
 
 server.listen(PORT, () => console.log(`Mixing it up on port ${PORT}`));
 
-require("./socket")(io);
+require("./sockets")(io);

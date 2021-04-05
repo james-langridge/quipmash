@@ -1,5 +1,5 @@
 import { socket } from './index';
-import { joinRoom } from './events.js';
+import { joinRoom } from './emit';
 
 export const socketListeners = ({ setState }) => {
   socket.on("connect", () => {
