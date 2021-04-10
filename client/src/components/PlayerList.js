@@ -1,0 +1,41 @@
+import React, { useContext, useState, useEffect } from "react";
+import SocketContext from '../socketContext/context';
+import ListGroup from 'react-bootstrap/ListGroup';
+import Col from 'react-bootstrap/Col';
+
+const PlayerList = () => {
+  const { roomInfo: {players} } = useContext(SocketContext);
+  const [playersOnline, setPlayersOnline] = useState([]);
+
+  useEffect(() => {
+    const newState = [];
+    players.map((player) => {
+      player.isConnected && newState.push(player);
+    });
+    setPlayersOnline(newState);
+  }, [players]);
+
+  return (
+    <>
+      {players.length > 0 &&
+        <Col md={4}>
+          <ListGroup className="my-2">
+            <ListGroup.Item active className="d-flex justify-content-between align-items-center">
+              Players online
+            </ListGroup.Item>
+            {playersOnline.map((player) =>
+              <ListGroup.Item
+                key={player.playerId}
+                className="d-flex justify-content-between align-items-center"
+              >
+                {player.username}
+              </ListGroup.Item>
+            )}
+          </ListGroup>
+        </Col>
+      }
+    </>
+  );
+}
+
+export default PlayerList;

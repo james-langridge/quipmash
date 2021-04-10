@@ -1,23 +1,24 @@
-const { questions } = require("../questions");
 const utils = require('../utils');
-
+let questions = [];
 const gameRooms = {
   // [roomKey]: {
+    // admin: '',
     // gameRound: 0,
     // votingRound: 0,
-    // votesSubmitted: 0,
-    // answersSubmitted: 0,
-    // currentQuestion: ''
-    // numPlayers: 0,
+    // currentQuestion: '',
     // players: [
       //   {
-      //       playerId: socket.id,
+      //       playerID: socket.id,
       //       username: socket.username,
+      //       hasSubmittedAnswers: false,
+      //       hasVoted: false,
+      //       isConnected: true,
       //     }
       //   ]
     // },
     // questionsAndAnswers: [
       //   {
+      //     questionID,
       //     question,
       //     playerID,
       //     username,
@@ -49,10 +50,7 @@ module.exports = (io) => {
     console.log(`A socket connection to the server has been made: ${socket.id}`);
 
     socket.on("isKeyValid", function (input) {
-      // TODO: update heroku config env var
-      if (input === process.env.HOST_CODE) {
-        emit.isHost();
-      } else if (Object.keys(gameRooms).includes(input) && gameRooms[input].gameRound > 0) {
+      if (Object.keys(gameRooms).includes(input) && gameRooms[input].gameRound > 0) {
         emit.waitForNextGame();
       } else if (Object.keys(gameRooms).includes(input)) {
         emit.keyIsValid(input);
@@ -67,13 +65,11 @@ module.exports = (io) => {
         newKey = utils.codeGenerator();
       }
       gameRooms[newKey] = {
+        admin: socket.id,
         roomKey: newKey,
         players: [],
-        numPlayers: 0,
         gameRound: 0,
         votingRound: 0,
-        votesSubmitted: 0,
-        answersSubmitted: 0,
         questionsAndAnswers: [],
         currentQuestion: '',
         scores: [],
@@ -92,11 +88,15 @@ module.exports = (io) => {
       roomInfo.players.push({
         username: socket.username,
         playerID: socket.id,
+        hasSubmittedAnswers: false,
+        hasVoted: false,
+        isConnected: true,
       });
-      roomInfo.numPlayers = roomInfo.players.length;
+      emit.playerJoinedRoom(roomKey, roomInfo);
     });
 
-    socket.on("startGame", async (roomKey) => {
+    socket.on("startGame", async (roomKey, q) => {
+      questions = q;
       const roomInfo = gameRooms[roomKey];
       if (roomInfo) {
         const players = roomInfo.players;
@@ -129,14 +129,24 @@ module.exports = (io) => {
     socket.on("submitAnswers", (answers) => {
       const roomKey = utils.findRoom(socket, gameRooms);
       const roomInfo = gameRooms[roomKey];
-      answers.forEach(answer => {
-        const foundIndex = roomInfo.questionsAndAnswers.findIndex(x => x.questionID === answer.questionID);
-        roomInfo.questionsAndAnswers[foundIndex] = answer;
-      });
-      roomInfo.answersSubmitted++;
-      if (roomInfo.answersSubmitted === roomInfo.numPlayers) {
-        roomInfo.gameRound++;
-        emit.startVotingRound(roomKey, roomInfo);
+      if (roomInfo) {
+        answers.forEach(answer => {
+          const questionIndex = roomInfo.questionsAndAnswers.findIndex(x => x.questionID === answer.questionID);
+          roomInfo.questionsAndAnswers[questionIndex] = answer;
+        });
+        const playerIndex = roomInfo.players.findIndex(x => x.playerID === socket.id);
+        roomInfo.players[playerIndex].hasSubmittedAnswers = true;
+        const connectedPlayersLeftToAnswer = roomInfo.players.reduce((count, player) => {
+          return player.isConnected === true && player.hasSubmittedAnswers === false ? ++count : count;
+        }, 0);
+        if (connectedPlayersLeftToAnswer === 0) {
+          roomInfo.gameRound++;
+          emit.startVotingRound(roomKey, roomInfo);
+        } else {
+          emit.answersSubmitted(roomKey, roomInfo);
+        }
+      } else {
+        console.error('roomInfo is undefined');
       }
     });
 
@@ -150,8 +160,12 @@ module.exports = (io) => {
           const currentVotes = roomInfo.questionsAndAnswers[index].votes;
           roomInfo.questionsAndAnswers[index].votes = currentVotes + 1;
         }
-        roomInfo.votesSubmitted++;
-        if (roomInfo.votesSubmitted === roomInfo.numPlayers) {
+        const playerIndex = roomInfo.players.findIndex(x => x.playerID === socket.id);
+        roomInfo.players[playerIndex].hasVoted = true;
+        const connectedPlayersLeftToVote = roomInfo.players.reduce((acc, cur) => {
+          return cur.isConnected === true && cur.hasVoted === false ? ++acc : acc
+        }, 0);
+        if (connectedPlayersLeftToVote === 0) {
           roomInfo
             .questionsAndAnswers
             .filter(e => e.question === question)
@@ -159,11 +173,12 @@ module.exports = (io) => {
               utils.saveScore(answer, roomInfo);
             });
             emit.displayResults(roomKey, utils.getTotalVotes(roomInfo), roomInfo);
+          roomInfo.players.forEach(player => player.hasVoted = false);
         } else {
-          emit.voteSubmitted();
+          emit.voteSubmitted(roomInfo);
         }
       } else {
-        console.log('roomInfo is undefined');
+        console.error('roomInfo is undefined');
       }
     });
 
@@ -171,8 +186,10 @@ module.exports = (io) => {
       const roomInfo = gameRooms[roomKey];
       if (roomInfo) {
         roomInfo.votingRound++;
-        roomInfo.votesSubmitted = 0;
-        if (roomInfo.votingRound === roomInfo.answersSubmitted) {
+        const playersWithAnswers = roomInfo.players.reduce((count, player) => {
+          return player.hasSubmittedAnswers === true ? ++count : count
+        }, 0);
+        if (roomInfo.votingRound === playersWithAnswers) {
           utils.sortScores(roomInfo);
           emit.endGame(roomKey, roomInfo);
         } else {
@@ -184,24 +201,10 @@ module.exports = (io) => {
     socket.on("disconnect", function () {
       const roomKey = utils.findRoom(socket, gameRooms);
       const roomInfo = gameRooms[roomKey];
-
       if (roomInfo) {
-        console.log("user disconnected: ", socket.id);
-        const foundIndex = roomInfo.players.findIndex(x => x.playerID === socket.id);
-        roomInfo.players.splice(foundIndex, 1);
-        roomInfo.numPlayers = roomInfo.players.length;
-        if (roomInfo.gameRound === 1 && roomInfo.answersSubmitted === roomInfo.numPlayers) {
-          roomInfo.gameRound++;
-          emit.startVotingRound(roomKey, roomInfo);
-        } else if (roomInfo.gameRound === 2 && roomInfo.votesSubmitted === roomInfo.numPlayers) {
-          roomInfo
-            .questionsAndAnswers
-            .filter(e => e.question === roomInfo.currentQuestion)
-            .forEach(answer => {
-              utils.saveScore(answer, roomInfo);
-            });
-            emit.displayResults(roomKey, utils.getTotalVotes(roomInfo), roomInfo);
-        }
+        const playerIndex = roomInfo.players.findIndex(x => x.playerID === socket.id);
+        roomInfo.players[playerIndex].isConnected = false;
+        emit.playerDisconnected(roomKey, roomInfo);
       }
     });
 

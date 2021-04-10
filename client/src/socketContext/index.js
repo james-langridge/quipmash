@@ -5,15 +5,17 @@ import { initSockets } from "../sockets";
 const SocketProvider = (props) => {
   const [state, setState] = useState({
     isUsernameSelected: false,
-    isHost: false,
     roomKey: null,
-    gameRound: 0,
-    votingRound: 0,
-    questionsAndAnswers: [],
-    gameStatus: 'voting',
-    totalVotes: 0,
-    scores: [],
     error: '',
+    totalVotes: 0,
+    gameStatus: 'voting',
+    roomInfo: {
+      gameRound: 0,
+      votingRound: 0,
+      players: [],
+      questionsAndAnswers: [],
+      scores: []
+    }
   });
 
   useEffect(() => {

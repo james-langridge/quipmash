@@ -17,8 +17,13 @@ export const socketListeners = ({ setState }) => {
     }
   });
 
-  socket.on("disconnect", () => {
-    // no-op
+  socket.on("playerDisconnected", roomInfo => {
+    setState(state => {
+      return {
+        ...state,
+        roomInfo
+      }
+    });
   });
 
   socket.on("keyNotValid", err => {
@@ -38,16 +43,6 @@ export const socketListeners = ({ setState }) => {
       }
     });
     joinRoom(roomKey);
-  });
-
-  socket.on("isHost", () => {
-    setState(state => {
-      return {
-        ...state,
-        isHost: true,
-        isUsernameSelected: true
-      }
-    });
   });
 
   socket.on("pleaseWaitForNextGame", err => {
@@ -78,61 +73,80 @@ export const socketListeners = ({ setState }) => {
     joinRoom(key);
   });
 
-  socket.on("startGame", ({ questionsAndAnswers, gameRound }) => {
+  socket.on("playerJoinedRoom", roomInfo => {
     setState(state => {
       return {
         ...state,
-        questionsAndAnswers,
-        gameRound
+        roomInfo
       }
     });
   });
 
-  socket.on("startVotingRound", ({ questionsAndAnswers, gameRound }) => {
+  socket.on("startGame", roomInfo => {
     setState(state => {
       return {
         ...state,
-        questionsAndAnswers,
-        gameRound
+        totalVotes: 0,
+        gameStatus: 'voting',
+        roomInfo
       }
     });
   });
 
-  socket.on("voteSubmitted", () => {
+  socket.on("answersSubmitted", roomInfo => {
     setState(state => {
       return {
         ...state,
+        roomInfo
+      }
+    });
+  });
+
+  socket.on("startVotingRound", roomInfo => {
+    setState(state => {
+      return {
+        ...state,
+        roomInfo
+      }
+    });
+  });
+
+  socket.on("voteSubmitted", roomInfo => {
+    setState(state => {
+      return {
+        ...state,
+        roomInfo,
         gameStatus: 'waiting'
       }
     });
   });
 
-  socket.on("displayResults", (totalVotes, { questionsAndAnswers }) => {
+  socket.on("displayResults", (totalVotes, roomInfo) => {
     setState(state => {
       return {
         ...state,
-        questionsAndAnswers,
+        roomInfo,
         totalVotes: totalVotes,
         gameStatus: 'results'
       }
     });
   });
 
-  socket.on("nextVotingRound", ({ votingRound }) => {
+  socket.on("nextVotingRound", roomInfo => {
     setState(state => {
       return {
         ...state,
-        votingRound,
+        roomInfo,
         gameStatus: 'voting'
       }
     });
   });
 
-  socket.on("endgame", ({ scores }) => {
+  socket.on("endgame", roomInfo => {
     setState(state => {
       return {
         ...state,
-        scores,
+        roomInfo,
         gameStatus: 'endgame'
       }
     });

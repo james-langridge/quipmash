@@ -1,0 +1,150 @@
+html,
+body,
+#root,
+#root>div {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  letter-spacing: 1px;
+  padding: 10px;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 75rem;
+  // padding-top: 4.5rem;
+}
+
+.upload-section {
+  display: flex;
+  margin-bottom: 10px;
+
+  & > div {
+    width: 50%;
+  }
+}
+
+.drop-zone {
+  margin-bottom: 10px;
+  padding: 40px 10px;
+  height: inherit;
+  border: 2px dashed #e9ebeb;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.image-preview {
+  height: inherit;
+  margin-left: 5%;
+}
+
+.preview-image {
+  height: inherit;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.preview-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 5%;
+}
+
+@media screen and (max-width: 1000px) {
+  .upload-section {
+    flex-direction: column;
+
+    & > div {
+      width: 100%;
+    }
+  }
+  .image-preview {
+    margin-left: 0;
+    height: 300px;
+  }
+  .upload-section {
+    height: unset;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  h1 {
+    font-size: 25px;
+  }
+  .drop-zone {
+    width: 100%;
+  }
+}
+
+.errorMsg {
+  color: #f21e08;
+  background: #fff0f0;
+  padding: 1rem;
+}
+
+.centered-message {
+  width: 50rem;
+  margin: auto;
+}
+
+.loading-msg {
+  text-align: center;
+  font-size: 200%;
+  height: 20rem;
+  line-height: 20rem;
+}
+
+.form-signin {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  margin: 0 auto;
+}
+
+.form-upload {
+  width: 100%;
+  max-width: 960px;
+  padding: 15px;
+  margin: 0 auto;
+}
+
+.form-signin .form-control {
+  position: relative;
+  box-sizing: border-box;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+
+.form-signin input[type="email"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.box-shadow {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}

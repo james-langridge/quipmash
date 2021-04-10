@@ -12,8 +12,8 @@ export const joinRoom = (roomKey) => {
   socket.emit("joinRoom", roomKey);
 }
 
-export const startGame = (roomKey) => {
-  socket.emit("startGame", roomKey);
+export const startGame = (roomKey, questions) => {
+  socket.emit("startGame", roomKey, questions);
 }
 
 export const submitAnswers = (userQuestions) => {

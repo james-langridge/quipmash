@@ -3,7 +3,7 @@ import SocketContext from '../socketContext/context';
 import Table from 'react-bootstrap/Table';
 
 const Leaderboard = () => {
-  const { scores } = useContext(SocketContext);
+  const { roomInfo: {scores} } = useContext(SocketContext);
 
   return (
     <Table striped bordered>
@@ -16,7 +16,7 @@ const Leaderboard = () => {
       </thead>
       <tbody>
         {scores.map((user, i) =>
-          <tr>
+          <tr key={user.username}>
             <td>{i+1}</td>
             <td>{user.username}</td>
             <td>{user.score}</td>

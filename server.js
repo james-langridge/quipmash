@@ -9,8 +9,16 @@ const bodyParser = require("body-parser");
 const passport = require("passport");
 const users = require("./routes/users");
 const promptRoute = require('./routes/prompts');
+const fileRoute = require('./routes/files');
 const PORT = process.env.PORT || 5000;
 const db = process.env.MONGO_URI;
+
+app.use(
+  bodyParser.urlencoded({
+    extended: false
+  })
+);
+app.use(bodyParser.json());
 
 mongoose
   .connect(db, {
@@ -27,6 +35,7 @@ require("./passport")(passport);
 
 app.use("/users", users);
 app.use("/prompt", promptRoute);
+app.use("/file", fileRoute);
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('client/build'))

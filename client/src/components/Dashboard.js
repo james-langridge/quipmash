@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Alert from 'react-bootstrap/Alert';
 
-const Dashboard = () => {
+const Dashboard = (props) => {
   const { roomKey } = useContext(SocketContext);
 
   return (
@@ -19,7 +19,8 @@ const Dashboard = () => {
         </Button>
         <Button
           variant="success"
-          onClick={() => startGame(roomKey)}
+          onClick={() => startGame(roomKey, props.selected)}
+          disabled={props.selected.length<1}
         >
           START
         </Button>

@@ -1,68 +1,24 @@
-// const path = require('path');
-const AWS = require('aws-sdk');
+const path = require('path');
 const express = require('express');
-const multer = require('multer');
-const multerS3 = require('multer-s3');
 const Prompt = require('../models/prompt');
 const Router = express.Router();
-
-AWS.config.getCredentials(function(err) {
-  if (err) console.log(err.stack);
-  else {
-    console.log("Access key:", AWS.config.credentials.accessKeyId);
-  }
-});
-
-AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-});
-
-const s3 = new AWS.S3();
-
-const upload = multer({
-  storage: multerS3({
-    s3: s3,
-    bucket: process.env.S3_BUCKET,
-    acl: "public-read",
-    metadata: function (req, file, cb) {
-      cb(null, { fieldName: "TESTING_METADATA" });
-    },
-    key: function (req, file, cb) {
-      cb(null, Date.now().toString());
-    },
-  }),
-  fileFilter(req, file, cb) {
-    if (!file.originalname.match(/\.(jpeg|jpg|png)$/)) {
-      return cb(
-        new Error(
-          'only upload files with jpg, jpeg, or png format.'
-        )
-      );
-    }
-    cb(undefined, true);
-  }
-});
 
 // @route POST prompt/save
 // @desc Save prompt
 // @access Public
 Router.post(
-  '/upload',
-  upload.single('prompt'),
+  '/save',
   async (req, res) => {
     try {
-      const { question, userId } = req.body;
-      const imageUrl = req.image.location;
+      const { question, created_by } = req.body;
       const prompt = new Prompt({
         question,
-        image_url: imageUrl,
-        created_by: userId
+        created_by
       });
       await prompt.save();
       res.send('prompt saved successfully.');
     } catch (error) {
-      res.status(500).send('Error while saving prompt. Try again later.');
+      res.status(500).send(error);
     }
   },
   (error, req, res, next) => {
@@ -72,20 +28,15 @@ Router.post(
   }
 );
 
-// @route POST prompt/edit
+// @route POST prompts/edit
 // @desc Update prompt
 // @access Public
 Router.post(
   '/update/:id',
-  upload.single('prompt'),
   async (req, res) => {
     try {
       const prompt = await Prompt.findById(req.params.id);
       const { question } = req.body;
-      if (req.image) {
-        const imageUrl = req.image.location;
-        prompt.image_url = imageUrl;
-      }
       prompt.question = question;
       await prompt.save();
       res.send('prompt updated successfully.');
@@ -100,7 +51,7 @@ Router.post(
   }
 );
 
-// @route GET prompt/getPrompt/:id
+// @route GET prompts/getPrompt/:id
 // @desc Get one prompt
 // @access Public
 Router.get('/getPrompt/:id', async (req, res) => {
@@ -117,17 +68,17 @@ Router.get('/getPrompt/:id', async (req, res) => {
 // @access Public
 Router.get('/getAllPrompts/:id', async (req, res) => {
   try {
-    const prompts = await Prompts.find({ created_by: req.params.id });
+    const prompts = await Prompt.find({ created_by: req.params.id });
     const sortedByCreationDate = prompts.sort(
       (a, b) => b.createdAt - a.createdAt
     );
     res.send(sortedByCreationDate);
   } catch (error) {
-    res.status(500).send('Error while getting list of prompts. Try again later.');
+    res.status(500).send(error);
   }
 });
 
-// @route DELETE prompt/delete/:id
+// @route DELETE prompts/delete/:id
 // @desc Delete single prompt
 // @access Public
 Router.delete('/delete/:id', async (req, res) => {

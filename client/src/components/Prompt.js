@@ -12,7 +12,7 @@ import Countdown from "./Countdown";
 import Waiting from "./Waiting";
 
 const Prompt = () => {
-  const { questionsAndAnswers } = useContext(SocketContext);
+  const { roomInfo: {questionsAndAnswers} } = useContext(SocketContext);
   const [caption, setCaption] = useState('');
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [questionRound, setQuestionRound] = useState(0);
@@ -56,12 +56,15 @@ const Prompt = () => {
         <Col md={8} lg={6} className="mx-auto">
           {questionRound < 2 ? (
             <>
-              <Image
-                src={userQuestions[questionRound].question}
-                rounded
-                fluid
-                className="my-2"
-              />
+              {userQuestions[questionRound].question.includes('amazonaws') ?
+                <Image
+                  src={userQuestions[questionRound].question}
+                  rounded
+                  fluid
+                  className="my-2"
+                /> :
+                <p>{userQuestions[questionRound].question}</p>
+              }
               <Form onSubmit={onSubmit}>
                 <Form.Group>
                   <Form.Label htmlFor="caption">Caption contest {questionRound+1} of 2:</Form.Label>

@@ -1,10 +1,13 @@
 import React from "react";
 import Container from 'react-bootstrap/Container';
+import PlayerList from "./PlayerList";
 
 const Header = () => {
+
   return (
     <Container className="text-center">
-      <h1>Eira's Birthday Game</h1>
+      <h1>Quipmash</h1>
+      <PlayerList />
     </Container>
   );
 }

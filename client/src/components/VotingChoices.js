@@ -6,7 +6,7 @@ import Image from 'react-bootstrap/Image';
 import Countdown from "./Countdown";
 
 const VotingChoices = () => {
-  const { totalVotes, questionsAndAnswers, votingRound } = useContext(SocketContext);
+  const { totalVotes, roomInfo: {questionsAndAnswers, votingRound} } = useContext(SocketContext);
   const questions = questionsAndAnswers.map(({ question }) => question);
   const questionsDeDup = [...new Set(questions)];
   const [answers, setAnswers] = useState(questionsAndAnswers.filter(e => e.question === questionsDeDup[votingRound]));
@@ -30,12 +30,15 @@ const VotingChoices = () => {
 
   return (
     <>
-      <Image
-        src={questionsDeDup[votingRound]}
-        rounded
-        fluid
-        className="my-2"
-      />
+      {questionsDeDup[votingRound].includes('amazonaws') ?
+        <Image
+          src={questionsDeDup[votingRound]}
+          rounded
+          fluid
+          className="my-2"
+        /> :
+        <p>{questionsDeDup[votingRound]}</p>
+      }
       <br />
       <h2>Vote for your favourite answer:</h2>
       {answers.map(item => {

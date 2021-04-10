@@ -22,7 +22,10 @@ module.exports = {
 
   saveScore: (answer, roomInfo) => {
     const {username, votes} = answer;
-    const score = Math.floor(votes / roomInfo.votesSubmitted * 1000);
+    const votesSubmitted = roomInfo.players.reduce((acc, cur) => {
+      return cur.hasVoted === true ? ++acc : acc
+    }, 0);
+    const score = Math.floor(votes / votesSubmitted * 1000);
     const newScore = {
       username: username,
       score: score

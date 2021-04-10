@@ -1,13 +1,12 @@
 import React, { useContext } from "react";
 import SocketContext from '../socketContext/context';
 import Container from 'react-bootstrap/Container';
-import Dashboard from "./Dashboard";
 import Prompt from "./Prompt";
 import Voting from "./Voting";
 import Rules from "./Rules";
 
 const Game = (props) => {
-  const { isHost, isUsernameSelected, gameRound } = useContext(SocketContext);
+  const { isUsernameSelected, roomInfo: {gameRound} } = useContext(SocketContext);
 
   if (!isUsernameSelected) {
     props.history.push('/');
@@ -15,8 +14,7 @@ const Game = (props) => {
 
   return (
     <Container className="text-center">
-      { isHost && <Dashboard /> }
-      { !isHost && (() => {
+      {(() => {
         switch (gameRound) {
           case 0:
             return <Rules />;
@@ -27,7 +25,7 @@ const Game = (props) => {
           default:
             return null;
         }
-      })() }
+      })()}
     </Container>
   );
 }
