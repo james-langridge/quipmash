@@ -6,7 +6,7 @@ import Image from 'react-bootstrap/Image';
 import Countdown from "./Countdown";
 
 const VotingChoices = () => {
-  const { totalVotes, roomInfo: {questionsAndAnswers, votingRound} } = useContext(SocketContext);
+  const { totalVotes, roomInfo: {roomKey, questionsAndAnswers, votingRound} } = useContext(SocketContext);
   const questions = questionsAndAnswers.map(({ question }) => question);
   const questionsDeDup = [...new Set(questions)];
   const [answers, setAnswers] = useState(questionsAndAnswers.filter(e => e.question === questionsDeDup[votingRound]));
@@ -15,7 +15,7 @@ const VotingChoices = () => {
   const handleClick = e => {
     const question = questionsDeDup[votingRound];
     const answer = e.target.value;
-    submitVote(question, answer);
+    submitVote(roomKey, question, answer);
   }
 
   useEffect(() => {
@@ -24,7 +24,7 @@ const VotingChoices = () => {
 
   useEffect(() => {
     if (isTimeUp === true) {
-      submitVote(questionsDeDup[votingRound], null);
+      submitVote(roomKey, questionsDeDup[votingRound], null);
     }
   }, [isTimeUp]);
 

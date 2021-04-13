@@ -3,6 +3,7 @@ let questions = [];
 const gameRooms = {
   // [roomKey]: {
     // admin: '',
+    // roomKey: '',
     // gameRound: 0,
     // votingRound: 0,
     // currentQuestion: '',
@@ -95,8 +96,10 @@ module.exports = (io) => {
       emit.playerJoinedRoom(roomKey, roomInfo);
     });
 
-    socket.on("startGame", async (roomKey, q) => {
-      questions = q;
+    socket.on("startGame", async (roomKey, questionData) => {
+      for (const q of questionData) {
+        questions.push(q.question);
+      }
       const roomInfo = gameRooms[roomKey];
       if (roomInfo) {
         const players = roomInfo.players;
@@ -126,8 +129,7 @@ module.exports = (io) => {
       }
     });
 
-    socket.on("submitAnswers", (answers) => {
-      const roomKey = utils.findRoom(socket, gameRooms);
+    socket.on("submitAnswers", (roomKey, answers) => {
       const roomInfo = gameRooms[roomKey];
       if (roomInfo) {
         answers.forEach(answer => {
@@ -150,8 +152,7 @@ module.exports = (io) => {
       }
     });
 
-    socket.on("submitVote", (question, answer) => {
-      const roomKey = utils.findRoom(socket, gameRooms);
+    socket.on("submitVote", (roomKey, question, answer) => {
       const roomInfo = gameRooms[roomKey];
       if (roomInfo) {
         roomInfo.currentQuestion = question;

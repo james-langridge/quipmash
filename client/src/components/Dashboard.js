@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import SocketContext from '../socketContext/context';
 import { createGame, startGame, nextVotingRound } from '../sockets/emit';
 import Button from 'react-bootstrap/Button';
@@ -6,7 +6,16 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Alert from 'react-bootstrap/Alert';
 
 const Dashboard = (props) => {
-  const { roomKey } = useContext(SocketContext);
+  const { roomKey, roomInfo: {players} } = useContext(SocketContext);
+  const [playersOnline, setPlayersOnline] = useState(99);
+
+  useEffect(() => {
+    setPlayersOnline(
+      players.reduce((count, player) => {
+        return player.isConnected === true ? ++count : count;
+      }, 0)
+    );
+  }, [players]);
 
   return (
     <>
@@ -20,7 +29,7 @@ const Dashboard = (props) => {
         <Button
           variant="success"
           onClick={() => startGame(roomKey, props.selected)}
-          disabled={props.selected.length<1}
+          disabled={props.selected.length < playersOnline}
         >
           START
         </Button>

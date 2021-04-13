@@ -135,9 +135,12 @@ const Admin = (props) => {
     onSelect: (row, isSelect) => {
       let newState = [...selected];
       if (isSelect) {
-        newState.push(row.main);
+        const obj = {};
+        obj._id = row.id;
+        obj.question = row.main;
+        newState.push(obj);
       } else if (!isSelect) {
-        const index = newState.findIndex((item => item === row.main));
+        const index = newState.findIndex((item => item._id === row.id));
         newState.splice(index, 1);
       }
       setSelected(newState);
@@ -146,7 +149,10 @@ const Admin = (props) => {
       let newState = [];
       if (isSelect) {
         for (const row of rows) {
-          newState.push(row.main)
+          const obj = {};
+          obj._id = row.id;
+          obj.question = row.main;
+          newState.push(obj);
         }
       }
       setSelected(newState);
@@ -173,13 +179,38 @@ const Admin = (props) => {
     }
   }
 
+  const handleDelete = async () => {
+    const result = window.confirm('Delete? You cannot undo this.')
+    if (result) {
+      try {
+        await axios.delete(`prompt/delete`, {
+          data: {
+            selected
+          }
+        });
+        setErrorMsg('');
+      } catch (error) {
+        if (error.response && error.response.status === 400) {
+          setErrorMsg('Error while deleting file.  Try again later.');
+        }
+      }
+      getPictureList();
+    }
+  };
+
   return (
     <Container>
       {view === 'question' &&
-        <QuestionForm functions={[errorMsg, setErrorMsg, getPictureList]} userId={userId} />
+        <QuestionForm
+          functions={[errorMsg, setErrorMsg, getPictureList]}
+          userId={userId}
+        />
       }
       {view === 'picture' &&
-        <ImageForm functions={[errorMsg, setErrorMsg, getQuestionList]} userId={userId} />
+        <ImageForm
+          functions={[errorMsg, setErrorMsg, getQuestionList]}
+          userId={userId}
+        />
       }
       <Dashboard selected={selected} />
       {tableDataLoaded &&
@@ -196,6 +227,13 @@ const Admin = (props) => {
               onClick={() => handleClick('picture')}
             >
               Pictures
+            </Button>
+            <Button
+              variant="outline-danger"
+              onClick={() => handleDelete()}
+              disabled={selected.length<1}
+            >
+              Delete
             </Button>
           </ButtonGroup>
           <BootstrapTable

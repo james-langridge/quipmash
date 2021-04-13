@@ -78,15 +78,20 @@ Router.get('/getAllPrompts/:id', async (req, res) => {
   }
 });
 
-// @route DELETE prompts/delete/:id
-// @desc Delete single prompt
+// @route DELETE prompt/delete
+// @desc Delete prompts
 // @access Public
-Router.delete('/delete/:id', async (req, res) => {
+Router.delete('/delete', async (req, res) => {
+  const { selected } = req.body;
+  const ids = [];
+  for (const item of selected) {
+    ids.push(item._id);
+  }
   try {
-    await Prompt.findByIdAndDelete(req.params.id);
-    res.send('prompt deleted successfully.');
+    await Prompt.deleteMany({ _id: ids });
+    res.send('deleted successfully.');
   } catch (error) {
-    res.status(400).send('Error while deleting prompt. Try again later.');
+    res.status(400).send('Error while deleting. Try again later.');
   }
 });
 

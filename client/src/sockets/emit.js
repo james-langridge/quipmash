@@ -16,12 +16,12 @@ export const startGame = (roomKey, questions) => {
   socket.emit("startGame", roomKey, questions);
 }
 
-export const submitAnswers = (userQuestions) => {
-  socket.emit("submitAnswers", userQuestions);
+export const submitAnswers = (roomKey, userQuestions) => {
+  socket.emit("submitAnswers", roomKey, userQuestions);
 }
 
-export const submitVote = (question, answer) => {
-  socket.emit("submitVote", question, answer);
+export const submitVote = (roomKey, question, answer) => {
+  socket.emit("submitVote", roomKey, question, answer);
 }
 
 export const nextVotingRound = (roomKey) => {

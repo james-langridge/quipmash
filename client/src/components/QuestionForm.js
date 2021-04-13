@@ -24,8 +24,6 @@ const QuestionForm = (props) => {
           created_by: props.userId
         };
         await axios.post('prompt/save', questionData);
-        setQuestion('');
-        getQuestionList()
       } else {
         setErrorMsg('Please enter a question.');
       }
@@ -33,6 +31,8 @@ const QuestionForm = (props) => {
       console.log(error.response.data);
       // error.response && setErrorMsg(error.response.data);
     }
+    setQuestion('');
+    getQuestionList();
   };
 
   return (

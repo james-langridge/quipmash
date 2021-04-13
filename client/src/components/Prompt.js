@@ -12,7 +12,7 @@ import Countdown from "./Countdown";
 import Waiting from "./Waiting";
 
 const Prompt = () => {
-  const { roomInfo: {questionsAndAnswers} } = useContext(SocketContext);
+  const { roomInfo: {questionsAndAnswers, roomKey} } = useContext(SocketContext);
   const [caption, setCaption] = useState('');
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [questionRound, setQuestionRound] = useState(0);
@@ -46,7 +46,7 @@ const Prompt = () => {
 
   useEffect(() => {
     if (questionRound === 2) {
-      submitAnswers(userQuestions);
+      submitAnswers(roomKey, userQuestions);
     }
   }, [userQuestions, questionRound]);
 
