@@ -19,6 +19,7 @@ const Admin = (props) => {
   const [questionList, setQuestionList] = useState([]);
   const [fileList, setFileList] = useState([]);
   const [selected, setSelected] = useState([]);
+  const [gameItems, setGameItems] = useState([]);
   const [tableDataLoaded, setTableDataLoaded] = useState(false);
   const [view, setView] = useState('question');
   const [data, setData] = useState([]);
@@ -31,7 +32,6 @@ const Admin = (props) => {
   }, [isAuthenticated]);
 
   useEffect(() => {
-    console.log('tableData:', tableData);
     setTableDataLoaded(true);
   }, [tableData]);
 
@@ -51,7 +51,6 @@ const Admin = (props) => {
   }, []);
 
   useEffect(() => {
-    console.log('questionList:', questionList);
     const questions = [];
     for (const question of questionList) {
       const obj = {};
@@ -80,7 +79,6 @@ const Admin = (props) => {
   }, [questionList]);
 
   useEffect(() => {
-    console.log('fileList:', fileList);
     const pictures = [];
     for (const picture of fileList) {
       const obj = {};
@@ -114,10 +112,6 @@ const Admin = (props) => {
     });
   }, [fileList]);
 
-  useEffect(() => {
-    console.log('data:', data)
-  }, [data]);
-
   const getPictureList = async () => {
     try {
       const { data } = await axios.get(`file/getAllFiles/${userId}`);
@@ -132,44 +126,33 @@ const Admin = (props) => {
   const selectRow = {
     mode: 'checkbox',
     clickToSelect: true,
+    selected: selected,
     onSelect: (row, isSelect) => {
-      let newState = [...selected];
       if (isSelect) {
-        const obj = {};
-        obj._id = row.id;
-        obj.question = row.main;
-        newState.push(obj);
+        setSelected([...selected, row.id])
+        setGameItems([...gameItems, questionList.find(x => x._id === row.id).question])
       } else if (!isSelect) {
-        const index = newState.findIndex((item => item._id === row.id));
-        newState.splice(index, 1);
+        setSelected(selected.filter(x => x !== row.id))
+        setGameItems(gameItems.filter(x => x !== row.main))
       }
-      setSelected(newState);
     },
     onSelectAll: (isSelect, rows) => {
-      let newState = [];
+      const ids = rows.map(r => r.id);
+      const questions = rows.map(r => r.main);
       if (isSelect) {
-        for (const row of rows) {
-          const obj = {};
-          obj._id = row.id;
-          obj.question = row.main;
-          newState.push(obj);
-        }
+        setSelected(ids);
+        setGameItems(questions);
+      } else {
+        setSelected([]);
+        setGameItems([]);
       }
-      setSelected(newState);
     }
   };
-
-  useEffect(() => {
-    console.log('selected:', selected)
-  }, [selected]);
-
-  useEffect(() => {
-    console.log('view:', view)
-  }, [view]);
 
   const handleClick = (view) => {
     setView(view);
     setSelected([]);
+    setGameItems([])
     switch (view) {
       case 'question':
         getQuestionList()
@@ -177,7 +160,7 @@ const Admin = (props) => {
       case 'picture':
         getPictureList();
         break;
-    }
+    };
   }
 
   const handleDelete = async () => {
@@ -220,7 +203,7 @@ const Admin = (props) => {
           userId={userId}
         />
       }
-      <Dashboard selected={selected} />
+      <Dashboard selected={gameItems} />
       {tableDataLoaded &&
         <>
           <ButtonGroup size="sm">

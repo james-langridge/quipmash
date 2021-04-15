@@ -82,11 +82,7 @@ Router.get('/getAllPrompts/:id', async (req, res) => {
 // @desc Delete prompts
 // @access Public
 Router.delete('/delete', async (req, res) => {
-  const { selected } = req.body;
-  const ids = [];
-  for (const item of selected) {
-    ids.push(item._id);
-  }
+  const { selected: ids } = req.body;
   try {
     await Prompt.deleteMany({ _id: ids });
     res.send('deleted successfully.');

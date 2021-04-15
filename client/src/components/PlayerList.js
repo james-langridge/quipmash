@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import SocketContext from '../socketContext/context';
 import ListGroup from 'react-bootstrap/ListGroup';
+import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 const PlayerList = () => {
@@ -18,21 +19,23 @@ const PlayerList = () => {
   return (
     <>
       {players.length > 0 &&
-        <Col md={4}>
-          <ListGroup className="my-2">
-            <ListGroup.Item active className="d-flex justify-content-between align-items-center">
-              Players online
-            </ListGroup.Item>
-            {playersOnline.map((player) =>
-              <ListGroup.Item
-                key={player.playerId}
-                className="d-flex justify-content-between align-items-center"
-              >
-                {player.username}
+        <Row className="justify-content-md-center">
+          <Col md={4} className="justify-content-center">
+            <ListGroup className="my-2">
+              <ListGroup.Item active className="d-flex justify-content-center align-items-center">
+                Players online
               </ListGroup.Item>
-            )}
-          </ListGroup>
-        </Col>
+              {playersOnline.map((player) =>
+                <ListGroup.Item
+                  key={player.playerId}
+                  className="d-flex justify-content-center align-items-center"
+                >
+                  {player.username}
+                </ListGroup.Item>
+              )}
+            </ListGroup>
+          </Col>
+        </Row>
       }
     </>
   );

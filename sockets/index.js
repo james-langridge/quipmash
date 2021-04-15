@@ -96,10 +96,8 @@ module.exports = (io) => {
       emit.playerJoinedRoom(roomKey, roomInfo);
     });
 
-    socket.on("startGame", async (roomKey, questionData) => {
-      for (const q of questionData) {
-        questions.push(q.question);
-      }
+    socket.on("startGame", async (roomKey, questions) => {
+      questions = questions;
       const roomInfo = gameRooms[roomKey];
       if (roomInfo) {
         const players = roomInfo.players;
