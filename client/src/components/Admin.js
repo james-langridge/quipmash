@@ -169,6 +169,7 @@ const Admin = (props) => {
 
   const handleClick = (view) => {
     setView(view);
+    setSelected([]);
     switch (view) {
       case 'question':
         getQuestionList()
@@ -194,7 +195,14 @@ const Admin = (props) => {
           setErrorMsg('Error while deleting file.  Try again later.');
         }
       }
-      getPictureList();
+      switch (view) {
+        case 'question':
+          getQuestionList()
+          break;
+        case 'picture':
+          getPictureList();
+          break;
+      }
     }
   };
 
@@ -202,13 +210,13 @@ const Admin = (props) => {
     <Container>
       {view === 'question' &&
         <QuestionForm
-          functions={[errorMsg, setErrorMsg, getPictureList]}
+          functions={[errorMsg, setErrorMsg, getQuestionList]}
           userId={userId}
         />
       }
       {view === 'picture' &&
         <ImageForm
-          functions={[errorMsg, setErrorMsg, getQuestionList]}
+          functions={[errorMsg, setErrorMsg, getPictureList]}
           userId={userId}
         />
       }
@@ -231,7 +239,7 @@ const Admin = (props) => {
             <Button
               variant="outline-danger"
               onClick={() => handleDelete()}
-              disabled={selected.length<1}
+              disabled={selected.length<1 || view === 'picture'}
             >
               Delete
             </Button>
