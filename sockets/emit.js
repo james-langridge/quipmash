@@ -42,6 +42,11 @@ module.exports = (io, socket) => {
       io.socketsLeave(oldKey);
     };
 
+    module.startGameCountDown = (roomKey) => {
+      // to all clients in room
+      io.in(roomKey).emit("startGameCountDown");
+    };
+
     module.startGame = (roomKey, roomInfo) => {
       // to all clients in room
       io.in(roomKey).emit("startGame", roomInfo);

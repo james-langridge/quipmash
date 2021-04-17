@@ -8,6 +8,7 @@ const SocketProvider = (props) => {
     roomKey: null,
     error: '',
     totalVotes: 0,
+    countDownToGame: false,
     gameStatus: 'voting',
     roomInfo: {
       gameRound: 0,

@@ -96,7 +96,7 @@ module.exports = (io) => {
       emit.playerJoinedRoom(roomKey, roomInfo);
     });
 
-    socket.on("startGame", async (roomKey, questions) => {
+    socket.on("startGameCountDown", async (roomKey, questions) => {
       questions = questions;
       const roomInfo = gameRooms[roomKey];
       if (roomInfo) {
@@ -120,11 +120,15 @@ module.exports = (io) => {
             });
           }
         });
-        questions.splice(0, players.length);
-        emit.startGame(roomKey, roomInfo);
+        emit.startGameCountDown(roomKey);
       } else {
         console.log('roominfo is undefined');
       }
+    });
+
+    socket.on("startGame", (roomKey) => {
+      const roomInfo = gameRooms[roomKey];
+      emit.startGame(roomKey, roomInfo);
     });
 
     socket.on("submitAnswers", (roomKey, answers) => {

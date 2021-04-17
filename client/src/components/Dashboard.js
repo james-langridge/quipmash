@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import SocketContext from '../socketContext/context';
-import { createGame, startGame, nextVotingRound } from '../sockets/emit';
+import { createGame, startGameCountDown, nextVotingRound } from '../sockets/emit';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Alert from 'react-bootstrap/Alert';
@@ -28,7 +28,7 @@ const Dashboard = (props) => {
         </Button>
         <Button
           variant="success"
-          onClick={() => startGame(roomKey, props.selected)}
+          onClick={() => startGameCountDown(roomKey, props.selected)}
           disabled={props.selected.length < playersOnline}
         >
           START

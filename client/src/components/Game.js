@@ -1,16 +1,25 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import SocketContext from '../socketContext/context';
+import { startGame } from '../sockets/emit';
 import Container from 'react-bootstrap/Container';
 import Prompt from "./Prompt";
 import Voting from "./Voting";
 import Rules from "./Rules";
+import Countdown from "./Countdown";
 
 const Game = (props) => {
-  const { isUsernameSelected, roomInfo: {gameRound} } = useContext(SocketContext);
+  const { isUsernameSelected, countDownToGame, roomInfo: {roomKey, gameRound} } = useContext(SocketContext);
+  const [isTimeUp, setIsTimeUp] = useState(false);
 
   if (!isUsernameSelected) {
     props.history.push('/');
   }
+
+  useEffect(() => {
+    if (isTimeUp) {
+      startGame(roomKey);
+    }
+  }, [isTimeUp]);
 
   return (
     <Container className="text-center">
@@ -26,6 +35,10 @@ const Game = (props) => {
             return null;
         }
       })()}
+      {
+        countDownToGame &&
+        <Countdown functions={[isTimeUp, setIsTimeUp]} time={10}/>
+      }
     </Container>
   );
 }

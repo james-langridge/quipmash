@@ -82,12 +82,22 @@ export const socketListeners = ({ setState }) => {
     });
   });
 
+  socket.on("startGameCountDown", () => {
+    setState(state => {
+      return {
+        ...state,
+        countDownToGame: true
+      }
+    });
+  });
+
   socket.on("startGame", roomInfo => {
     setState(state => {
       return {
         ...state,
         totalVotes: 0,
         gameStatus: 'voting',
+        countDownToGame: false,
         roomInfo
       }
     });
