@@ -7,7 +7,7 @@ import Alert from 'react-bootstrap/Alert';
 
 const Dashboard = (props) => {
   const { roomKey, roomInfo: {players} } = useContext(SocketContext);
-  const [playersOnline, setPlayersOnline] = useState(99);
+  const [playersOnline, setPlayersOnline] = useState();
 
   useEffect(() => {
     setPlayersOnline(
@@ -24,14 +24,14 @@ const Dashboard = (props) => {
           variant="info"
           onClick={() => createGame(roomKey)}
         >
-          Create game
+          New game
         </Button>
         <Button
           variant="success"
           onClick={() => startGameCountDown(roomKey, props.selected)}
-          disabled={props.selected.length < playersOnline}
+          disabled={props.selected.length < playersOnline || playersOnline < 2}
         >
-          START
+          Start
         </Button>
         <Button
           variant="primary"

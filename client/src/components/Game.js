@@ -37,7 +37,11 @@ const Game = (props) => {
       })()}
       {
         countDownToGame &&
-        <Countdown functions={[isTimeUp, setIsTimeUp]} time={10}/>
+        <Countdown
+          functions={[isTimeUp, setIsTimeUp]}
+          time={10}
+          text={'until game starts'}
+        />
       }
     </Container>
   );

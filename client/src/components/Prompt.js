@@ -13,16 +13,16 @@ import Waiting from "./Waiting";
 
 const Prompt = () => {
   const { roomInfo: {questionsAndAnswers, roomKey} } = useContext(SocketContext);
-  const [caption, setCaption] = useState('');
+  const [answer, setAnswer] = useState('');
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [questionRound, setQuestionRound] = useState(0);
   const [userQuestions, setUserQuestions] = useState(questionsAndAnswers.filter(e => e.playerID === socket.id));
 
   const onChange = e => {
-    setCaption(e.target.value);
+    setAnswer(e.target.value);
   };
 
-  const isValid = () => caption.length > 2 ? true : false;
+  const isValid = () => answer.length > 2 ? true : false;
 
   useEffect(() => {
     if (isTimeUp === true) {
@@ -38,9 +38,9 @@ const Prompt = () => {
   const onSubmit = (e) => {
     e.preventDefault();
     const newState = [...userQuestions];
-    newState[questionRound] = { ...newState[questionRound], answer: caption };
+    newState[questionRound] = { ...newState[questionRound], answer: answer };
     setUserQuestions(newState);
-    setCaption('');
+    setAnswer('');
     setQuestionRound(questionRound+1);
   }
 
@@ -67,12 +67,11 @@ const Prompt = () => {
               }
               <Form onSubmit={onSubmit}>
                 <Form.Group>
-                  <Form.Label htmlFor="caption">Caption contest {questionRound+1} of 2:</Form.Label>
                   <Form.Control
-                    id="caption"
+                    id="answer"
                     type="text"
-                    placeholder="Hilarious caption here..."
-                    value={caption}
+                    placeholder={`Answer ${questionRound+1} of 2...`}
+                    value={answer}
                     onChange={onChange}
                     autoFocus={true}
                   />
@@ -85,7 +84,11 @@ const Prompt = () => {
                   Submit
                 </Button>
               </Form>
-              <Countdown functions={[isTimeUp, setIsTimeUp]} time={20} />
+              <Countdown
+                functions={[isTimeUp, setIsTimeUp]}
+                time={90}
+                text={'left to submit answers'}
+              />
             </>
           ) : ( <Waiting /> )}
         </Col>

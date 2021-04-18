@@ -30,7 +30,7 @@ const Countdown = (props) => {
       <Badge pill variant="danger">
         {timer}
       </Badge>
-      seconds left!
+      {` seconds ${props.text}...`}
     </h5>
   );
 }

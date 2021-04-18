@@ -56,7 +56,11 @@ const VotingChoices = () => {
                   <br />
                 </>
       })}
-      <Countdown functions={[isTimeUp, setIsTimeUp]} time={20}/>
+      <Countdown
+        functions={[isTimeUp, setIsTimeUp]}
+        time={20}
+        text={'left to vote'}
+      />
     </>
   );
 }
