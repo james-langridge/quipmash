@@ -152,7 +152,7 @@ const Admin = (props) => {
   const handleClick = (view) => {
     setView(view);
     setSelected([]);
-    setGameItems([])
+    setGameItems([]);
     switch (view) {
       case 'question':
         getQuestionList()
@@ -203,7 +203,10 @@ const Admin = (props) => {
           userId={userId}
         />
       }
-      <Dashboard selected={gameItems} />
+      <Dashboard
+        selected={gameItems}
+        functions={[setSelected, setGameItems]}
+      />
       {tableDataLoaded &&
         <>
           <ButtonGroup size="sm">

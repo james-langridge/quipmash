@@ -6,6 +6,7 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Alert from 'react-bootstrap/Alert';
 
 const Dashboard = (props) => {
+  const [setSelected, setGameItems] = props.functions;
   const { roomKey, roomInfo: {players} } = useContext(SocketContext);
   const [playersOnline, setPlayersOnline] = useState();
 
@@ -28,7 +29,11 @@ const Dashboard = (props) => {
         </Button>
         <Button
           variant="success"
-          onClick={() => startGameCountDown(roomKey, props.selected)}
+          onClick={() => {
+            startGameCountDown(roomKey, props.selected);
+            setSelected([]);
+            setGameItems([]);
+          }}
           disabled={props.selected.length < playersOnline || playersOnline < 2}
         >
           Start
