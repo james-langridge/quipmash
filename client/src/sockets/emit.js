@@ -27,7 +27,3 @@ export const submitAnswers = (roomKey, userQuestions) => {
 export const submitVote = (roomKey, question, answer) => {
   socket.emit("submitVote", roomKey, question, answer);
 }
-
-export const nextVotingRound = (roomKey) => {
-  socket.emit("nextVotingRound", roomKey);
-}

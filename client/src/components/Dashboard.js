@@ -38,12 +38,6 @@ const Dashboard = (props) => {
         >
           Start
         </Button>
-        <Button
-          variant="primary"
-          onClick={() => nextVotingRound(roomKey)}
-        >
-          ROUND++
-        </Button>
       </ButtonGroup>
       <Alert
         variant="success"

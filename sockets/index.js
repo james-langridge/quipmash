@@ -154,6 +154,22 @@ module.exports = (io) => {
       }
     });
 
+    const nextVotingRound = roomKey => {
+      const roomInfo = gameRooms[roomKey];
+      if (roomInfo) {
+        roomInfo.votingRound++;
+        const playersWithAnswers = roomInfo.players.reduce((count, player) => {
+          return player.hasSubmittedAnswers === true ? ++count : count
+        }, 0);
+        if (roomInfo.votingRound === playersWithAnswers) {
+          utils.sortScores(roomInfo);
+          emit.endGame(roomKey, roomInfo);
+        } else {
+          emit.nextVotingRound(roomKey, roomInfo);
+        }
+      }
+    };
+
     socket.on("submitVote", (roomKey, question, answer) => {
       const roomInfo = gameRooms[roomKey];
       if (roomInfo) {
@@ -177,27 +193,14 @@ module.exports = (io) => {
             });
             emit.displayResults(roomKey, utils.getTotalVotes(roomInfo), roomInfo);
           roomInfo.players.forEach(player => player.hasVoted = false);
+          setTimeout(() => {
+            nextVotingRound(roomKey);
+          }, 10000);
         } else {
           emit.voteSubmitted(roomInfo);
         }
       } else {
         console.error('roomInfo is undefined');
-      }
-    });
-
-    socket.on("nextVotingRound", (roomKey) => {
-      const roomInfo = gameRooms[roomKey];
-      if (roomInfo) {
-        roomInfo.votingRound++;
-        const playersWithAnswers = roomInfo.players.reduce((count, player) => {
-          return player.hasSubmittedAnswers === true ? ++count : count
-        }, 0);
-        if (roomInfo.votingRound === playersWithAnswers) {
-          utils.sortScores(roomInfo);
-          emit.endGame(roomKey, roomInfo);
-        } else {
-          emit.nextVotingRound(roomKey, roomInfo);
-        }
       }
     });
 
