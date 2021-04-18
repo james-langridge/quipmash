@@ -4,43 +4,43 @@ import { submitVote } from '../sockets/emit';
 import Button from 'react-bootstrap/Button';
 import Image from 'react-bootstrap/Image';
 import Countdown from "./Countdown";
+import { socket } from '../sockets';
 
 const VotingChoices = () => {
   const { totalVotes, roomInfo: {roomKey, questionsAndAnswers, votingRound} } = useContext(SocketContext);
-  const questions = questionsAndAnswers.map(({ question }) => question);
-  const questionsDeDup = [...new Set(questions)];
-  const [answers, setAnswers] = useState(questionsAndAnswers.filter(e => e.question === questionsDeDup[votingRound]));
+  const questions = [...new Set(questionsAndAnswers.map(({ question }) => question))];
+  const [answers, setAnswers] = useState(questionsAndAnswers.filter(e => e.question === questions[votingRound]));
   const [isTimeUp, setIsTimeUp] = useState(false);
 
   const handleClick = e => {
-    const question = questionsDeDup[votingRound];
+    const question = questions[votingRound];
     const answer = e.target.value;
     submitVote(roomKey, question, answer);
   }
 
   useEffect(() => {
-    setAnswers(questionsAndAnswers.filter(e => e.question === questionsDeDup[votingRound]));
+    setAnswers(questionsAndAnswers.filter(e => e.question === questions[votingRound]));
   }, [votingRound, questionsAndAnswers]);
 
   useEffect(() => {
     if (isTimeUp === true) {
-      submitVote(roomKey, questionsDeDup[votingRound], null);
+      submitVote(roomKey, questions[votingRound], null);
     }
   }, [isTimeUp]);
 
   return (
     <>
-      {questionsDeDup[votingRound].includes('amazonaws') ?
+      {questions[votingRound].includes('amazonaws') ?
         <Image
-          src={questionsDeDup[votingRound]}
+          src={questions[votingRound]}
           rounded
           fluid
           className="my-2"
         /> :
-        <p>{questionsDeDup[votingRound]}</p>
+        <h2>{questions[votingRound]}</h2>
       }
       <br />
-      <h2>Vote for your favourite answer:</h2>
+      <h5>Vote for your favourite answer:</h5>
       {answers.map(item => {
         if (item.answer !== '')
           return <>

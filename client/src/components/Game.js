@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
 import SocketContext from '../socketContext/context';
-import { startGame } from '../sockets/emit';
 import Container from 'react-bootstrap/Container';
 import Prompt from "./Prompt";
 import Voting from "./Voting";
@@ -14,12 +13,6 @@ const Game = (props) => {
   if (!isUsernameSelected) {
     props.history.push('/');
   }
-
-  useEffect(() => {
-    if (isTimeUp) {
-      startGame(roomKey);
-    }
-  }, [isTimeUp]);
 
   return (
     <Container className="text-center">

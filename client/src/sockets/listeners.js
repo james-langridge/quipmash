@@ -54,20 +54,22 @@ export const socketListeners = ({ setState }) => {
     });
   });
 
-  socket.on("roomKey", key => {
+  socket.on("roomKey", (key, roomInfo) => {
     setState(state => {
       return {
         ...state,
-        roomKey: key
+        roomKey: key,
+        roomInfo
       }
     });
   });
 
-  socket.on("roomCreated", key => {
+  socket.on("roomCreated", (key, roomInfo) => {
     setState(state => {
       return {
         ...state,
-        roomKey: key
+        roomKey: key,
+        roomInfo
       }
     });
     joinRoom(key);
@@ -82,11 +84,12 @@ export const socketListeners = ({ setState }) => {
     });
   });
 
-  socket.on("startGameCountDown", () => {
+  socket.on("startGameCountDown", roomInfo => {
     setState(state => {
       return {
         ...state,
-        countDownToGame: true
+        countDownToGame: true,
+        roomInfo
       }
     });
   });

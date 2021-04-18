@@ -16,10 +16,6 @@ export const startGameCountDown = (roomKey, questions) => {
   socket.emit("startGameCountDown", roomKey, questions);
 }
 
-export const startGame = (roomKey) => {
-  socket.emit("startGame", roomKey);
-}
-
 export const submitAnswers = (roomKey, userQuestions) => {
   socket.emit("submitAnswers", roomKey, userQuestions);
 }

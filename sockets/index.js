@@ -1,7 +1,8 @@
 const utils = require('../utils');
-let questions = [];
 const gameRooms = {
   // [roomKey]: {
+    // isGameInProgress: false,
+    // hasKeyBeenGenerated: false,
     // admin: '',
     // roomKey: '',
     // gameRound: 0,
@@ -65,7 +66,8 @@ module.exports = (io) => {
       while (Object.keys(gameRooms).includes(newKey)) {
         newKey = utils.codeGenerator();
       }
-      gameRooms[newKey] = {
+      const roomInfo = gameRooms[newKey] = {
+        hasKeyBeenGenerated: true,
         admin: socket.id,
         roomKey: newKey,
         players: [],
@@ -75,9 +77,9 @@ module.exports = (io) => {
         currentQuestion: '',
         scores: [],
       };
-      emit.roomKey(newKey);
+      emit.roomKey(newKey, roomInfo);
       if (oldKey) {
-        emit.roomCreated(oldKey, newKey);
+        emit.roomCreated(oldKey, newKey, roomInfo);
         emit.leaveOldRoom(oldKey);
         delete gameRooms.oldKey;
       };
@@ -97,18 +99,17 @@ module.exports = (io) => {
     });
 
     socket.on("startGameCountDown", async (roomKey, questions) => {
-      questions = questions;
       const roomInfo = gameRooms[roomKey];
       if (roomInfo) {
+        roomInfo.isGameInProgress = true;
         const players = roomInfo.players;
-        roomInfo.gameRound = 1;
         let i = 0;
         let questionID = 0;
         utils.shuffle(questions);
-        roomInfo.players.forEach((player, i) => {
+        players.forEach((player, i) => {
           for (j = 0; j < 2; j++, i++) {
             if (i === players.length) {
-              i = 0
+              i = 0;
             };
             roomInfo.questionsAndAnswers.push({
               questionID: questionID++,
@@ -120,15 +121,14 @@ module.exports = (io) => {
             });
           }
         });
-        emit.startGameCountDown(roomKey);
+        emit.startGameCountDown(roomKey, roomInfo);
+        setTimeout(() => {
+          roomInfo.gameRound = 1;
+          emit.startGame(roomKey, roomInfo);
+        }, 10000);
       } else {
         console.log('roominfo is undefined');
       }
-    });
-
-    socket.on("startGame", (roomKey) => {
-      const roomInfo = gameRooms[roomKey];
-      emit.startGame(roomKey, roomInfo);
     });
 
     socket.on("submitAnswers", (roomKey, answers) => {
@@ -162,6 +162,8 @@ module.exports = (io) => {
           return player.hasSubmittedAnswers === true ? ++count : count
         }, 0);
         if (roomInfo.votingRound === playersWithAnswers) {
+          roomInfo.hasKeyBeenGenerated = false;
+          roomInfo.isGameInProgress = false;
           utils.sortScores(roomInfo);
           emit.endGame(roomKey, roomInfo);
         } else {

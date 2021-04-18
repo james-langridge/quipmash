@@ -5,25 +5,24 @@ import Countdown from "./Countdown";
 
 const Results = () => {
   const { totalVotes, roomInfo: {questionsAndAnswers, votingRound} } = useContext(SocketContext);
-  const questions = questionsAndAnswers.map(({ question }) => question);
-  const questionsDeDup = [...new Set(questions)];
-  const [answers, setAnswers] = useState(questionsAndAnswers.filter(e => e.question === questionsDeDup[votingRound]));
+  const questions = [...new Set(questionsAndAnswers.map(({ question }) => question))];
+  const [answers, setAnswers] = useState(questionsAndAnswers.filter(e => e.question === questions[votingRound]));
   const [isTimeUp, setIsTimeUp] = useState(false);
 
   useEffect(() => {
-    setAnswers(questionsAndAnswers.filter(e => e.question === questionsDeDup[votingRound]));
+    setAnswers(questionsAndAnswers.filter(e => e.question === questions[votingRound]));
   }, [questionsAndAnswers, votingRound]);
 
   return (
     <>
-      {questionsDeDup[votingRound].includes('amazonaws') ?
+      {questions[votingRound].includes('amazonaws') ?
         <Image
-          src={questionsDeDup[votingRound]}
+          src={questions[votingRound]}
           rounded
           fluid
           className="my-2"
         /> :
-        <p>{questionsDeDup[votingRound]}</p>
+        <h2>{questions[votingRound]}</h2>
       }
       {answers.map(answer =>
         <p key={answer.questionID}>

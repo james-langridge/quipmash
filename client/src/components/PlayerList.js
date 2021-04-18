@@ -27,7 +27,7 @@ const PlayerList = () => {
               </ListGroup.Item>
               {playersOnline.map((player) =>
                 <ListGroup.Item
-                  key={player.playerId}
+                  key={player.playerID}
                   className="d-flex justify-content-center align-items-center"
                 >
                   {player.username}

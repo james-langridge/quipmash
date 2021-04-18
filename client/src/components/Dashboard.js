@@ -7,7 +7,7 @@ import Alert from 'react-bootstrap/Alert';
 
 const Dashboard = (props) => {
   const [setSelected, setGameItems] = props.functions;
-  const { roomKey, roomInfo: {players} } = useContext(SocketContext);
+  const { roomKey, roomInfo: {players, hasKeyBeenGenerated, isGameInProgress} } = useContext(SocketContext);
   const [playersOnline, setPlayersOnline] = useState();
 
   useEffect(() => {
@@ -24,6 +24,7 @@ const Dashboard = (props) => {
         <Button
           variant="info"
           onClick={() => createGame(roomKey)}
+          disabled={hasKeyBeenGenerated}
         >
           New game
         </Button>
@@ -34,7 +35,7 @@ const Dashboard = (props) => {
             setSelected([]);
             setGameItems([]);
           }}
-          disabled={props.selected.length < playersOnline || playersOnline < 2}
+          disabled={props.selected.length < playersOnline || playersOnline < 2 || !hasKeyBeenGenerated || isGameInProgress}
         >
           Start
         </Button>
