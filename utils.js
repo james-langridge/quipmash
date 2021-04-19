@@ -44,10 +44,9 @@ module.exports = {
   },
 
   getTotalVotes: roomInfo => {
-    const questions = roomInfo.questionsAndAnswers.map(({ question }) => question);
-    const questionsDeDup = [...new Set(questions)];
+    const questions = [...new Set(roomInfo.questionsAndAnswers.map(({ question }) => question))];
     let totalVotes = roomInfo.questionsAndAnswers
-      .filter(e => e.question === questionsDeDup[roomInfo.votingRound])
+      .filter(e => e.question === questions[roomInfo.votingRound])
       .reduce((prev, current) => (prev.votes + current.votes));
     if (typeof totalVotes === 'object') {
       totalVotes = totalVotes.votes;

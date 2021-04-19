@@ -26,7 +26,7 @@ const Results = () => {
       }
       {answers.map(answer =>
         <p key={answer.questionID}>
-          "{answer.answer}" has {answer.votes} votes... {Math.floor(answer.votes / totalVotes * 1000)} points for {answer.username}!
+          "{answer.answer}" has {answer.votes} votes... {Math.floor(answer.votes / totalVotes * 1000) || 0} points for {answer.username}!
         </p>
       )}
       <Countdown
