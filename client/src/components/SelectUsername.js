@@ -74,7 +74,6 @@ const SelectUsername = (props) => {
                 value={username}
                 onChange={onChangeUsername}
                 className="text-input-field"
-                autoFocus={true}
               />
             </Form.Group>
             <Button
