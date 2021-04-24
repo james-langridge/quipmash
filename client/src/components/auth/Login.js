@@ -120,7 +120,6 @@ class Login extends Component {
             Sign in
           </Button>
           <p>No account yet?  <Link to="/register">Register here</Link></p>
-          <p className="mt-5 mb-3 text-muted">© 2021</p>
         </Form>
       </Container>
     );

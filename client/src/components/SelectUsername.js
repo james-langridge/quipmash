@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import SocketContext from '../socketContext/context';
 import { socket } from '../sockets';
 import { joinRoom, isKeyValid } from '../sockets/emit';
+import { Link } from "react-router-dom";
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
@@ -80,11 +81,13 @@ const SelectUsername = (props) => {
               variant="success"
               type="submit"
               disabled={!isValid()}
+              className="my-2"
             >
-              Chalo let's go!
+              Let's go!
             </Button>
           </Form>
           {error && <p>{error}</p>}
+          <p>Or <Link to="/login">log in</Link> to create a game.</p>
         </Col>
       </Row>
     </Container>
