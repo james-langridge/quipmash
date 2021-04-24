@@ -3,7 +3,9 @@ import SocketContext from '../../socketContext/context';
 import Table from 'react-bootstrap/Table';
 
 const Leaderboard = () => {
-  const { roomInfo: {scores} } = useContext(SocketContext);
+  const { roomInfo: {players} } = useContext(SocketContext);
+  const scores = players.map(({playerID, hasSubmittedAnswers, hasVoted, isConnected, ...scores}) => scores);
+  scores.sort((a, b) => (a.score < b.score) ? 1 : -1);
 
   return (
     <Table striped bordered>

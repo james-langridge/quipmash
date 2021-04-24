@@ -1,5 +1,5 @@
 module.exports = {
-  findRoom: (socket, gameRooms) => {
+  findRoom: function(socket, gameRooms) {
     let roomKey = 0;
     for (let keys1 in gameRooms) {
       if (gameRooms[keys1].players.some(e => e.playerID === socket.id)) {
@@ -10,7 +10,7 @@ module.exports = {
       return roomKey;
     },
 
-  codeGenerator: () => {
+  codeGenerator: function() {
     let code = "";
     let chars = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789";
     for (let i = 0; i < 5; i++) {
@@ -20,30 +20,15 @@ module.exports = {
     return code;
   },
 
-  saveScore: (answer, roomInfo) => {
+  saveScore: function(answer, roomInfo) {
     const {username, votes} = answer;
-    const votesSubmitted = roomInfo.players.reduce((acc, cur) => {
-      return cur.hasVoted === true ? ++acc : acc
-    }, 0);
-    const score = Math.floor(votes / votesSubmitted * 1000);
-    const newScore = {
-      username: username,
-      score: score
-    }
-    const index = roomInfo.scores.findIndex((obj => obj.username === username));
-    if (index != -1) {
-      const currentScore = roomInfo.scores[index].score;
-      roomInfo.scores[index].score = currentScore + score;
-    } else {
-      roomInfo.scores = [...roomInfo.scores, newScore];
-    }
+    const newScore = Math.floor(votes / this.getTotalVotes(roomInfo) * 1000) || 0;
+    const playerIndex = roomInfo.players.findIndex((obj => obj.username === username));
+    const currentScore = roomInfo.players[playerIndex].score;
+    roomInfo.players[playerIndex].score = currentScore + newScore;
   },
 
-  sortScores: roomInfo => {
-    roomInfo.scores.sort((a, b) => (a.score < b.score) ? 1 : -1);
-  },
-
-  getTotalVotes: roomInfo => {
+  getTotalVotes: function(roomInfo) {
     const questions = [...new Set(roomInfo.questionsAndAnswers.map(({ question }) => question))];
     let totalVotes = roomInfo.questionsAndAnswers
       .filter(e => e.question === questions[roomInfo.votingRound])
@@ -55,7 +40,7 @@ module.exports = {
     return totalVotes;
   },
 
-  shuffle: (questions) => {
+  shuffle: function(questions) {
     [...Array(questions.length)]
       .map((...args) => Math.floor(Math.random() * (args[1] + 1)))
       .reduce( (a, rv, i) => ([a[i], a[rv]] = [a[rv], a[i]]) && a, questions);

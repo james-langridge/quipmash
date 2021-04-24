@@ -2,7 +2,6 @@ import React, { useEffect, useContext, useState } from "react";
 import SocketContext from '../../socketContext/context';
 import { socket } from '../../sockets';
 import { submitAnswers } from '../../sockets/emit';
-import Image from 'react-bootstrap/Image';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
@@ -56,15 +55,7 @@ const Prompt = () => {
         <Col md={8} lg={6} className="mx-auto">
           {questionRound < 2 ? (
             <>
-              {userQuestions[questionRound].question.includes('amazonaws') ?
-                <Image
-                  src={userQuestions[questionRound].question}
-                  rounded
-                  fluid
-                  className="my-2"
-                /> :
-                <p>{userQuestions[questionRound].question}</p>
-              }
+              <p>{userQuestions[questionRound].question}</p>
               <Form onSubmit={onSubmit}>
                 <Form.Group>
                   <Form.Control

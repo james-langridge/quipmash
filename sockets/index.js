@@ -7,7 +7,6 @@ const gameRooms = {
     // roomKey: '',
     // gameRound: 0,
     // votingRound: 0,
-    // currentQuestion: '',
     // players: [
       //   {
       //       playerID: socket.id,
@@ -15,6 +14,7 @@ const gameRooms = {
       //       hasSubmittedAnswers: false,
       //       hasVoted: false,
       //       isConnected: true,
+      //       score: 0,
       //     }
       //   ]
     // },
@@ -27,13 +27,7 @@ const gameRooms = {
       //     answer,
       //     votes,
       //   }
-    // ],
-    // scores: [
-      //  {
-      //    username: username,
-      //    score: score
-      //  }
-  //   ]
+    // ]
   // }
 };
 
@@ -74,8 +68,6 @@ module.exports = (io) => {
         gameRound: 0,
         votingRound: 0,
         questionsAndAnswers: [],
-        currentQuestion: '',
-        scores: [],
       };
       emit.roomKey(newKey, roomInfo);
       if (oldKey) {
@@ -94,6 +86,7 @@ module.exports = (io) => {
         hasSubmittedAnswers: false,
         hasVoted: false,
         isConnected: true,
+        score: 0,
       });
       emit.playerJoinedRoom(roomKey, roomInfo);
     });
@@ -164,7 +157,6 @@ module.exports = (io) => {
         if (roomInfo.votingRound === playersWithAnswers) {
           roomInfo.hasKeyBeenGenerated = false;
           roomInfo.isGameInProgress = false;
-          utils.sortScores(roomInfo);
           emit.endGame(roomKey, roomInfo);
         } else {
           emit.nextVotingRound(roomKey, roomInfo);
@@ -175,26 +167,30 @@ module.exports = (io) => {
     socket.on("submitVote", (roomKey, question, answer) => {
       const roomInfo = gameRooms[roomKey];
       if (roomInfo) {
-        roomInfo.currentQuestion = question;
+        const questionsAndAnswers = roomInfo.questionsAndAnswers;
+        const players = roomInfo.players;
+        const playerIndex = players.findIndex(x => x.playerID === socket.id);
+
         if (answer !== null) {
-          const index = roomInfo.questionsAndAnswers.findIndex((obj => obj.answer === answer));
-          const currentVotes = roomInfo.questionsAndAnswers[index].votes;
-          roomInfo.questionsAndAnswers[index].votes = currentVotes + 1;
+          const answerIndex = questionsAndAnswers.findIndex((obj => obj.answer === answer));
+          const currentVotes = questionsAndAnswers[answerIndex].votes;
+          questionsAndAnswers[answerIndex].votes = currentVotes + 1;
         }
-        const playerIndex = roomInfo.players.findIndex(x => x.playerID === socket.id);
-        roomInfo.players[playerIndex].hasVoted = true;
-        const connectedPlayersLeftToVote = roomInfo.players.reduce((acc, cur) => {
-          return cur.isConnected === true && cur.hasVoted === false ? ++acc : acc
+
+        players[playerIndex].hasVoted = true;
+
+        const connectedPlayersLeftToVote = players.reduce((count, player) => {
+          return player.isConnected === true && player.hasVoted === false ? ++count : count
         }, 0);
+
         if (connectedPlayersLeftToVote === 0) {
-          roomInfo
-            .questionsAndAnswers
+          questionsAndAnswers
             .filter(e => e.question === question)
             .forEach(answer => {
               utils.saveScore(answer, roomInfo);
             });
             emit.displayResults(roomKey, utils.getTotalVotes(roomInfo), roomInfo);
-          roomInfo.players.forEach(player => player.hasVoted = false);
+          players.forEach(player => player.hasVoted = false);
           setTimeout(() => {
             nextVotingRound(roomKey);
           }, 10000);

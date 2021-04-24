@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import SocketContext from '../../socketContext/context';
-import Image from 'react-bootstrap/Image';
 import Countdown from "../common/Countdown";
 
 const Results = () => {
@@ -20,18 +19,10 @@ const Results = () => {
 
   return (
     <>
-      {questions[votingRound].includes('amazonaws') ?
-        <Image
-          src={questions[votingRound]}
-          rounded
-          fluid
-          className="my-2"
-        /> :
-        <h2>{questions[votingRound]}</h2>
-      }
+      <h2>{questions[votingRound]}</h2>
       {answers.map(answer =>
         <p key={answer.questionID}>
-          "{answer.answer}" has {answer.votes} votes... {Math.floor(answer.votes / totalVotes * 1000) || 0} points for {answer.username}!
+          "{answer.answer}" has {answer.votes} vote{answer.votes !== 1 && 's'}... {Math.floor(answer.votes / totalVotes * 1000) || 0} points for {answer.username}!
         </p>
       )}
       <Countdown
