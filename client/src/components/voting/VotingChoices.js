@@ -51,7 +51,7 @@ const VotingChoices = () => {
       <br />
       {
         isOwnAnswer ?
-        <h5>You can't vote for your own answer</h5> :
+        <h5>You can't vote for your own answer... gotta wait this one out.</h5> :
         <h5>Vote for your favourite answer:</h5>
       }
       {answers.map(item => {

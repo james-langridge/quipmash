@@ -5,6 +5,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
+import { Link } from "react-router-dom";
 
 const QuestionForm = (props) => {
   const [errorMsg, setErrorMsg, getQuestionList] = props.functions;
@@ -36,36 +37,43 @@ const QuestionForm = (props) => {
   };
 
   return (
-    <Form className="form-upload" onSubmit={handleQuestionSubmit}>
-      {errorMsg && <p className="errorMsg">{errorMsg}</p>}
-      <Row>
-        <Col>
-          <InputGroup className="mb-3">
-            <Form.Control
-              type="text"
-              name="question"
-              value={question}
-              placeholder="Add a question..."
-              onChange={handleInputChange}
-            />
-            <InputGroup.Append>
-              <Button variant="primary" type="submit">Save question</Button>
-            </InputGroup.Append>
-          </InputGroup>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <Form.Group>
-            <Form.Control
-              type="hidden"
-              name="userId"
-              value={props.userId}
-            />
-          </Form.Group>
-        </Col>
-      </Row>
-    </Form>
+    <>
+      <Form className="form-upload" onSubmit={handleQuestionSubmit}>
+        {errorMsg && <p className="errorMsg">{errorMsg}</p>}
+        <Row>
+          <Col>
+            <InputGroup className="mb-3">
+              <Form.Control
+                type="text"
+                name="question"
+                value={question}
+                placeholder="Add a question..."
+                onChange={handleInputChange}
+              />
+              <InputGroup.Append>
+                <Button variant="primary" type="submit">Save question</Button>
+              </InputGroup.Append>
+            </InputGroup>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <Form.Group>
+              <Form.Control
+                type="hidden"
+                name="userId"
+                value={props.userId}
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+      </Form>
+      <p>Click New Game to generate a new room code.</p>
+      <p>Players enter the code here: <Link to="/">https://quipmash.herokuapp.com/</Link></p>
+      <p>Select questions to play with.  You must select at least as many questions as there are players.</p>
+      <p>Click Start.</p>
+      <p>To play again, click New Game, choose questions, and click Start again.</p>
+    </>
   );
 }
 
