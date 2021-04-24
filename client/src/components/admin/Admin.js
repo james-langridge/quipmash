@@ -6,7 +6,7 @@ import Container from 'react-bootstrap/Container';
 import { useSelector } from 'react-redux';
 import Dashboard from "./Dashboard";
 import Button from 'react-bootstrap/Button';
-import { socket } from '../sockets';
+import { socket } from '../../sockets';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import QuestionForm from './QuestionForm';
 import ImageForm from './ImageForm';

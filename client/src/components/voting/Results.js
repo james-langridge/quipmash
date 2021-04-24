@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
-import SocketContext from '../socketContext/context';
+import SocketContext from '../../socketContext/context';
 import Image from 'react-bootstrap/Image';
-import Countdown from "./Countdown";
+import Countdown from "../common/Countdown";
 
 const Results = () => {
   const { totalVotes, roomInfo: {questionsAndAnswers, votingRound} } = useContext(SocketContext);
@@ -12,6 +12,11 @@ const Results = () => {
   useEffect(() => {
     setAnswers(questionsAndAnswers.filter(e => e.question === questions[votingRound]));
   }, [questionsAndAnswers, votingRound]);
+
+  useEffect(() => {
+    console.log('totalVotes:',totalVotes);
+    console.log('answers', answers);
+  }, [totalVotes, answers]);
 
   return (
     <>

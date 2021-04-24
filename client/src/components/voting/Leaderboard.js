@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import SocketContext from '../socketContext/context';
+import SocketContext from '../../socketContext/context';
 import Table from 'react-bootstrap/Table';
 
 const Leaderboard = () => {

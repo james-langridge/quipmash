@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import SocketContext from '../socketContext/context';
+import SocketContext from '../../socketContext/context';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';

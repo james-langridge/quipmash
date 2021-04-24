@@ -1,10 +1,10 @@
 import React, { useContext } from "react";
-import SocketContext from '../socketContext/context';
+import SocketContext from '../../socketContext/context';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import VotingChoices from "./VotingChoices";
-import Waiting from "./Waiting";
+import Waiting from "../common/Waiting";
 import Results from "./Results";
 import Leaderboard from "./Leaderboard";
 

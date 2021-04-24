@@ -1,10 +1,10 @@
 import React, { useContext, useState, useEffect } from "react";
 import SocketContext from '../socketContext/context';
 import Container from 'react-bootstrap/Container';
-import Prompt from "./Prompt";
-import Voting from "./Voting";
+import Prompt from "./questions/Prompt";
+import Voting from "./voting/Voting";
 import Rules from "./Rules";
-import Countdown from "./Countdown";
+import Countdown from "./common/Countdown";
 
 const Game = (props) => {
   const { isUsernameSelected, countDownToGame, roomInfo: {roomKey, gameRound} } = useContext(SocketContext);

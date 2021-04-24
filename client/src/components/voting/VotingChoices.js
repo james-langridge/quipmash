@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
-import SocketContext from '../socketContext/context';
-import { submitVote } from '../sockets/emit';
+import SocketContext from '../../socketContext/context';
+import { submitVote } from '../../sockets/emit';
 import Button from 'react-bootstrap/Button';
 import Image from 'react-bootstrap/Image';
-import Countdown from "./Countdown";
-import { socket } from '../sockets';
+import Countdown from "../common/Countdown";
+import { socket } from '../../sockets';
 
 const VotingChoices = () => {
   const { totalVotes, roomInfo: {roomKey, questionsAndAnswers, votingRound} } = useContext(SocketContext);
