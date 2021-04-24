@@ -7,9 +7,7 @@ import { useSelector } from 'react-redux';
 import Dashboard from "./Dashboard";
 import Button from 'react-bootstrap/Button';
 import { socket } from '../../sockets';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import QuestionForm from './QuestionForm';
-import ImageForm from './ImageForm';
 
 const Admin = (props) => {
   const userId = useSelector(state => state.auth.user.id);
@@ -21,7 +19,6 @@ const Admin = (props) => {
   const [selected, setSelected] = useState([]);
   const [gameItems, setGameItems] = useState([]);
   const [tableDataLoaded, setTableDataLoaded] = useState(false);
-  const [view, setView] = useState('question');
   const [data, setData] = useState([]);
   const [tableData, setTableData] = useState({})
 
@@ -112,17 +109,6 @@ const Admin = (props) => {
     });
   }, [fileList]);
 
-  const getPictureList = async () => {
-    try {
-      const { data } = await axios.get(`file/getAllFiles/${userId}`);
-      setErrorMsg('');
-      setFileList(data);
-    } catch (error) {
-      console.log('error:', error)
-      // error.response && setErrorMsg(error.response.data);
-    }
-  };
-
   const selectRow = {
     mode: 'checkbox',
     clickToSelect: true,
@@ -149,20 +135,6 @@ const Admin = (props) => {
     }
   };
 
-  const handleClick = (view) => {
-    setView(view);
-    setSelected([]);
-    setGameItems([]);
-    switch (view) {
-      case 'question':
-        getQuestionList()
-        break;
-      case 'picture':
-        getPictureList();
-        break;
-    };
-  }
-
   const handleDelete = async () => {
     const result = window.confirm('Delete? You cannot undo this.')
     if (result) {
@@ -178,58 +150,29 @@ const Admin = (props) => {
           setErrorMsg('Error while deleting file.  Try again later.');
         }
       }
-      switch (view) {
-        case 'question':
-          getQuestionList()
-          break;
-        case 'picture':
-          getPictureList();
-          break;
-      }
+      getQuestionList()
     }
   };
 
   return (
     <Container>
-      {view === 'question' &&
-        <QuestionForm
-          functions={[errorMsg, setErrorMsg, getQuestionList]}
-          userId={userId}
-        />
-      }
-      {view === 'picture' &&
-        <ImageForm
-          functions={[errorMsg, setErrorMsg, getPictureList]}
-          userId={userId}
-        />
-      }
+      <QuestionForm
+        functions={[errorMsg, setErrorMsg, getQuestionList]}
+        userId={userId}
+      />
       <Dashboard
         selected={gameItems}
         functions={[setSelected, setGameItems]}
       />
       {tableDataLoaded &&
         <>
-          <ButtonGroup size="sm">
-            <Button
-              variant="outline-secondary"
-              onClick={() => handleClick('question')}
-            >
-              Questions
-            </Button>
-            <Button
-              variant="outline-secondary"
-              onClick={() => handleClick('picture')}
-            >
-              Pictures
-            </Button>
-            <Button
-              variant="outline-danger"
-              onClick={() => handleDelete()}
-              disabled={selected.length<1 || view === 'picture'}
-            >
-              Delete
-            </Button>
-          </ButtonGroup>
+          <Button
+            variant="outline-danger"
+            onClick={() => handleDelete()}
+            disabled={selected.length<1}
+          >
+            Delete
+          </Button>
           <BootstrapTable
             bootstrap4
             keyField='id'
