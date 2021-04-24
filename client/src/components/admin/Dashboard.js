@@ -4,6 +4,8 @@ import { createGame, startGameCountDown, nextVotingRound } from '../../sockets/e
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Alert from 'react-bootstrap/Alert';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 const Dashboard = (props) => {
   const [setSelected, setGameItems] = props.functions;
@@ -19,34 +21,37 @@ const Dashboard = (props) => {
   }, [players]);
 
   return (
-    <>
-      <ButtonGroup>
-        <Button
-          variant="info"
-          onClick={() => createGame(roomKey)}
-          disabled={hasKeyBeenGenerated}
-        >
-          New game
-        </Button>
-        <Button
-          variant="success"
-          onClick={() => {
-            startGameCountDown(roomKey, props.selected);
-            setSelected([]);
-            setGameItems([]);
-          }}
-          disabled={props.selected.length < playersOnline || playersOnline < 2 || !hasKeyBeenGenerated || isGameInProgress}
-        >
-          Start
-        </Button>
-      </ButtonGroup>
-      <Alert
-        variant="success"
-        className="my-2"
-      >
-        <Alert.Heading>Room key: {roomKey}</Alert.Heading>
-      </Alert>
-    </>
+    <Row>
+      <Col>
+        <ButtonGroup>
+          <Button
+            variant="info"
+            size="lg"
+            onClick={() => createGame(roomKey)}
+            disabled={hasKeyBeenGenerated}
+          >
+            New game
+          </Button>
+          <Button
+            variant="success"
+            size="lg"
+            onClick={() => {
+              startGameCountDown(roomKey, props.selected);
+              setSelected([]);
+              setGameItems([]);
+            }}
+            disabled={props.selected.length < playersOnline || playersOnline < 2 || !hasKeyBeenGenerated || isGameInProgress}
+          >
+            Start
+          </Button>
+        </ButtonGroup>
+      </Col>
+      <Col sm={7} md={6} lg={4} className="text-center">
+        <Alert variant="success">
+          <Alert.Heading>Room key: {roomKey}</Alert.Heading>
+        </Alert>
+      </Col>
+    </Row>
   );
 }
 

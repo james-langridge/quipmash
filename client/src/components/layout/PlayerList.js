@@ -5,7 +5,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 const PlayerList = () => {
-  const { roomInfo: {players} } = useContext(SocketContext);
+  const { roomInfo: {roomKey, players} } = useContext(SocketContext);
   const [playersOnline, setPlayersOnline] = useState([]);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ const PlayerList = () => {
           <Col md={4} className="justify-content-center">
             <ListGroup className="my-2">
               <ListGroup.Item active className="d-flex justify-content-center align-items-center">
-                Players online
+                Players in room {roomKey}
               </ListGroup.Item>
               {playersOnline.map((player) =>
                 <ListGroup.Item

@@ -8,6 +8,8 @@ import Dashboard from "./Dashboard";
 import Button from 'react-bootstrap/Button';
 import { socket } from '../../sockets';
 import QuestionForm from './QuestionForm';
+import Instructions from "./Instructions";
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
 const Admin = (props) => {
   const userId = useSelector(state => state.auth.user.id);
@@ -156,23 +158,32 @@ const Admin = (props) => {
 
   return (
     <Container>
-      <QuestionForm
-        functions={[errorMsg, setErrorMsg, getQuestionList]}
-        userId={userId}
-      />
+      <Instructions/>
       <Dashboard
         selected={gameItems}
         functions={[setSelected, setGameItems]}
       />
+      <QuestionForm
+        functions={[errorMsg, setErrorMsg, getQuestionList]}
+        userId={userId}
+      />
       {tableDataLoaded &&
         <>
-          <Button
-            variant="outline-danger"
-            onClick={() => handleDelete()}
-            disabled={selected.length<1}
-          >
-            Delete
-          </Button>
+          <ButtonGroup>
+            <Button
+              variant="outline-danger"
+              onClick={() => handleDelete()}
+              disabled={selected.length<1}
+            >
+              Delete
+            </Button>
+            <Button
+              variant="outline-info"
+              onClick={() => getQuestionList()}
+            >
+              Refresh
+            </Button>
+          </ButtonGroup>
           <BootstrapTable
             bootstrap4
             keyField='id'
