@@ -63,7 +63,7 @@ const VotingChoices = () => {
       })}
       <Countdown
         functions={[isTimeUp, setIsTimeUp]}
-        time={20}
+        time={15}
         text={'left to vote'}
       />
     </>

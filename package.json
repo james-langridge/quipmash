@@ -1,10 +1,10 @@
 {
-  "name": "quiplash-clone",
+  "name": "quipmash",
   "version": "1.0.0",
   "engines": {
     "node": "15.x"
   },
-  "description": "",
+  "description": "Any resemblance to an existing quiz game is purely intentional.",
   "main": "server.js",
   "scripts": {
     "server": "DEBUG=express:* DEBUG_COLORS=true DEBUG_FD=1 nodemon server.js",
@@ -12,27 +12,34 @@
     "dev": "concurrently \"npm run server\" \"npm start --prefix client\"",
     "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/james-langridge/quipmash.git"
+  },
   "keywords": [],
   "author": "James Langridge",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/james-langridge/quipmash/issues"
+  },
+  "homepage": "https://github.com/james-langridge/quipmash#readme",
   "dependencies": {
-    "aws-sdk": "^2.880.0",
+    "aws-sdk": "^2.897.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
-    "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "is-empty": "^1.2.0",
-    "mongoose": "^5.12.3",
+    "mongoose": "^5.12.7",
     "multer": "^1.4.2",
     "multer-s3": "^2.9.0",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
-    "socket.io": "^4.0.0",
-    "validator": "^13.5.2"
+    "socket.io": "^4.0.1",
+    "validator": "^13.6.0"
   },
   "devDependencies": {
-    "concurrently": "^6.0.0",
+    "concurrently": "^6.0.2",
     "nodemon": "^2.0.7"
   }
 }
