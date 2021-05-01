@@ -8,7 +8,11 @@ const Leaderboard = () => {
   scores.sort((a, b) => (a.score < b.score) ? 1 : -1);
 
   return (
-    <Table striped bordered>
+    <Table
+      striped
+      bordered
+      variant="dark"
+    >
       <thead>
         <tr>
           <th>#</th>

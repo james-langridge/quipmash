@@ -27,7 +27,7 @@ const Results = () => {
       )}
       <Countdown
         functions={[isTimeUp, setIsTimeUp]}
-        time={10}
+        time={5}
         text={'until next round starts'}
       />
     </>

@@ -207,7 +207,13 @@ module.exports = (io) => {
       const roomInfo = gameRooms[roomKey];
       if (roomInfo) {
         const playerIndex = roomInfo.players.findIndex(x => x.playerID === socket.id);
-        roomInfo.players[playerIndex].isConnected = false;
+        // if game hasn't started just delete the player
+        if (roomInfo.gameRound === 0) {
+          roomInfo.players.splice(playerIndex, 1);
+        } else {
+          // if game has started then keep player as disconnected
+          roomInfo.players[playerIndex].isConnected = false;
+        }
         emit.playerDisconnected(roomKey, roomInfo);
       }
     });
