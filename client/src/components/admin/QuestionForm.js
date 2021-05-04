@@ -23,7 +23,7 @@ const QuestionForm = (props) => {
           question: question,
           created_by: props.userId
         };
-        await axios.post('prompt/save', questionData);
+        await axios.post('question/save', questionData);
       } else {
         setErrorMsg('Please enter a question.');
       }

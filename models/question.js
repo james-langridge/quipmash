@@ -1,14 +1,10 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const FileSchema = new Schema({
-    description: {
+const QuestionSchema = new Schema({
+    question: {
       type: String,
-      required: true,
-      trim: true
-    },
-    file_url: {
-      type: String,
+      trim: true,
       required: true
     },
     created_by: {
@@ -21,4 +17,4 @@ const FileSchema = new Schema({
   }
 );
 
-module.exports = File = mongoose.model('Image', FileSchema);;
+module.exports = Question = mongoose.model('Prompt', QuestionSchema);;

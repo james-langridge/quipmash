@@ -1,16 +1,16 @@
 import React, { useEffect, useContext, useState } from "react";
-import SocketContext from '../../socketContext/context';
-import { socket } from '../../sockets';
-import { submitAnswers } from '../../sockets/emit';
+import SocketContext from '../socketContext/context';
+import { socket } from '../sockets';
+import { submitAnswers } from '../sockets/emit';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Countdown from "../common/Countdown";
-import Waiting from "../common/Waiting";
+import Countdown from "./common/Countdown";
+import Waiting from "./common/Waiting";
 
-const Prompt = () => {
+const Question = () => {
   const { roomInfo: {questionsAndAnswers, roomKey} } = useContext(SocketContext);
   const [answer, setAnswer] = useState('');
   const [isTimeUp, setIsTimeUp] = useState(false);
@@ -88,4 +88,4 @@ const Prompt = () => {
   );
 }
 
-export default Prompt;
+export default Question;

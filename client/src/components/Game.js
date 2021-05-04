@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import SocketContext from '../socketContext/context';
 import Container from 'react-bootstrap/Container';
-import Prompt from "./questions/Prompt";
+import Question from "./Question";
 import Voting from "./voting/Voting";
 import Rules from "./Rules";
 import Countdown from "./common/Countdown";
@@ -21,7 +21,7 @@ const Game = (props) => {
           case 0:
             return <Rules />;
           case 1:
-            return <Prompt />;
+            return <Question />;
           case 2:
             return <Voting />;
           default:

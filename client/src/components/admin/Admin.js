@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import BootstrapTable from 'react-bootstrap-table-next';
-import cellEditFactory from 'react-bootstrap-table2-editor';
 import Container from 'react-bootstrap/Container';
 import { useSelector } from 'react-redux';
 import Dashboard from "./Dashboard";
@@ -17,7 +16,6 @@ const Admin = (props) => {
   const username = useSelector(state => state.auth.user.name);
   const [errorMsg, setErrorMsg] = useState('');
   const [questionList, setQuestionList] = useState([]);
-  const [fileList, setFileList] = useState([]);
   const [selected, setSelected] = useState([]);
   const [gameItems, setGameItems] = useState([]);
   const [tableDataLoaded, setTableDataLoaded] = useState(false);
@@ -36,7 +34,7 @@ const Admin = (props) => {
 
   const getQuestionList = async () => {
     try {
-      const { data } = await axios.get(`prompt/getAllPrompts/${userId}`);
+      const { data } = await axios.get(`question/getAllQuestions/${userId}`);
       setErrorMsg('');
       setQuestionList(data);
     } catch (error) {
@@ -77,40 +75,6 @@ const Admin = (props) => {
     });
   }, [questionList]);
 
-  useEffect(() => {
-    const pictures = [];
-    for (const picture of fileList) {
-      const obj = {};
-      obj.id = picture._id;
-      obj.description = picture.description;
-      obj.main = picture.file_url;
-      pictures.push(obj);
-    }
-    setTableData({
-      data: pictures,
-      columns: [
-        {
-          dataField: 'id',
-          hidden: true
-        },
-        {
-          dataField: 'description',
-          text: 'Description',
-          sort: true,
-        }
-        ,
-        {
-          dataField: 'main',
-          hidden: true
-        }
-      ],
-        defaultSorted: [{
-          dataField: 'description',
-          order: 'desc'
-        }]
-    });
-  }, [fileList]);
-
   const selectRow = {
     mode: 'checkbox',
     clickToSelect: true,
@@ -141,7 +105,7 @@ const Admin = (props) => {
     const result = window.confirm('Delete? You cannot undo this.')
     if (result) {
       try {
-        await axios.delete(`prompt/delete`, {
+        await axios.delete(`question/delete`, {
           data: {
             selected
           }
@@ -149,7 +113,7 @@ const Admin = (props) => {
         setErrorMsg('');
       } catch (error) {
         if (error.response && error.response.status === 400) {
-          setErrorMsg('Error while deleting file.  Try again later.');
+          setErrorMsg('Error while deleting question.  Try again later.');
         }
       }
       getQuestionList()
@@ -194,12 +158,6 @@ const Admin = (props) => {
             hover
             noDataIndication="Table is Empty"
             defaultSorted={ tableData.defaultSorted }
-            cellEdit={ cellEditFactory({
-              mode: 'click',
-              beforeSaveCell: (oldValue, newValue, row, column) => {
-                 console.log('Before Saving Cell!!');
-               }
-            }) }
           />
         </>
       }
@@ -208,25 +166,3 @@ const Admin = (props) => {
 }
 
 export default Admin;
-
-//
-// validator: (newValue, row, column, done) => {
-//   setTimeout(() => {
-//     if (isNaN(newValue)) {
-//       return done({
-//         valid: false,
-//         message: 'Price should be numeric'
-//       });
-//     }
-//     if (newValue < 2000) {
-//       return done({
-//         valid: false,
-//         message: 'Price should bigger than 2000'
-//       });
-//     }
-//     return done();
-//   }, 2000);
-//   return {
-//     async: true
-//   };
-// }
